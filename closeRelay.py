@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-#Program namenjen preklopu releja iz zaprtega v odprto stanje, če je le ta predolgo odprt
-#Uporabljen kot rešitev problema #1 (glej bugs.md)
+#Program namenjen preklopu releja iz zaprtega v odprto stanje, če je le ta predolgo zaprt
+#Uporabljen kot rešitev problema #1 (glej BUGS.md)
 
 import RPi.GPIO as GPIO #import the GPIO library
 import time

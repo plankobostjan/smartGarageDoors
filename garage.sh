@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #BASH skripta, ki jo trenutno uporabljam za odpiranje/zapiranje garažnih vrat preko svojega telefona
-#Potrebne izboljšave (glej bugs.md)
 
 if ping -c 1 192.168.0.9 &> /dev/null #če je računalnik v garaži na voljo (povezan v omrežje)
 then

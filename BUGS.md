@@ -6,5 +6,5 @@ Prva težava se je pojavila relativno hitro po prvih poskusih avtomatizacije gar
 Težavo sem odpravil dokaj enostavno. Napisal sem program v Pythonu — [closeRelay.py](./closeRelay.py) —, ki ves čas preverja če v kakšnem stanju je rele. Če le ta ostane zaprt predolgo časa, ga program samodejno odpre.
 Rešitev se je izkazala kot učinkovita, saj se težava od takrat naprej ne pojavlja več.
 
-## 2 - geslo kot tekst
+## #2 - geslo kot tekst
 Trenutno je geslo za Raspberry Pi v [garage.sh](./garage.sh) shranjeno kot tekst. To predstavlja varnostno luknjo, zato moram čim prej najti rešitev.

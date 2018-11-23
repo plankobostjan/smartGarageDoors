@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/Arch Linux) (preloaded format=pdflatex 2018.11.23)  23 NOV 2018 08:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018/Arch Linux) (preloaded format=pdflatex 2018.11.23)  23 NOV 2018 08:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -766,7 +766,7 @@ Package glossaries Info: Writing glossary file main.glo on input line 97.
 
 Package glossaries Info: Writing glossary file main.acn on input line 97.
 
-No file main.aux.
+(./main.aux)
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 118.
@@ -786,7 +786,7 @@ LaTeX Font Info:    ... okay on input line 118.
 LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 118.
 LaTeX Font Info:    Try loading font information for TS1+cmr on input line 118.
 
-(/usr/share/texmf-dist/tex/latex/base/ts1cmr.fd
+ (/usr/share/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    ... okay on input line 118.
@@ -813,12 +813,13 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 118.
 LaTeX Info: Redefining \pageref on input line 118.
 LaTeX Info: Redefining \nameref on input line 118.
+ (./main.out)
+(./main.out)
 \@outlinefile=\write6
 \openout6 = `main.out'.
 
 \c@lstlisting=\count160
-
-(/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+ (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count161
 \scratchdimen=\dimen166
@@ -899,13 +900,15 @@ e ignored
 <to be read again> 
                    \relax 
 l.182 \newpage
-               [1]
+               [1] (./main.toc)
 \tf@toc=\write7
 \openout7 = `main.toc'.
 
+ (./main.lot)
 \tf@lot=\write8
 \openout8 = `main.lot'.
 
+ (./main.lof)
 \tf@lof=\write9
 \openout9 = `main.lof'.
 
@@ -914,54 +917,36 @@ No file main.acr.
 No file main.gls.
 [5
 
-]
-
-Package natbib Warning: Citation `wikiShells' undefined on input line 221.
-
-
-Package natbib Warning: Citation `ryanPerm' undefined on input line 222.
-
-
-Package natbib Warning: Citation `LinPerm' undefined on input line 223.
-
-No file main.bbl.
-
-Package natbib Warning: There were undefined citations.
-
+] (./main.bbl)
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 229.
-[6]
+ [6]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 229.
  (./main.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 229.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 229.
-
-
-Package rerunfilecheck Warning: File `main.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `main.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  549DA91CB0B068FD61E191AA53136252;39.
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: D192C3687522DBC5E9A6BF2E05D39BCB;86.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 229.
  ) 
 Here is how much of TeX's memory you used:
- 15115 strings out of 492642
- 225208 string characters out of 6135565
- 488134 words of memory out of 5000000
- 18765 multiletter control sequences out of 15000+600000
- 9325 words of font info for 34 fonts, out of 8000000 for 9000
+ 15150 strings out of 492642
+ 225636 string characters out of 6135565
+ 488281 words of memory out of 5000000
+ 18781 multiletter control sequences out of 15000+600000
+ 10641 words of font info for 39 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  45i,11n,45p,1984b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/share/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mssbx10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (6 pages, 60485 bytes).
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/share/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></
+usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (6 pages, 93121 bytes).
 PDF statistics:
- 59 PDF objects out of 1000 (max. 8388607)
- 44 compressed objects within 1 object stream
- 7 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 82 PDF objects out of 1000 (max. 8388607)
+ 65 compressed objects within 1 object stream
+ 10 named destinations out of 1000 (max. 500000)
+ 17 words of extra memory for PDF output out of 10000 (max. 10000000)
 

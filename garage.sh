@@ -8,7 +8,7 @@ then
     sleep .5
     termux-notification --title Garage --content 'Opening/closing garage.' --sound
     termux-toast 'Opening/closing garage!'
-    ssh pi@192.168.0.9 'gpio toggle 1; sleep .6; gpio toggle 1;'
+    ssh pi@192.168.0.9 'bash $HOME/toggleGarage.sh Bostjan'
 else
     termux-tts-speak 'Garage computer not available.'
     termux-notification --title Garage --content 'Garage computer not available.'

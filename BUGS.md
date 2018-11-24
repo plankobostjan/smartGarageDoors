@@ -1,5 +1,18 @@
 # Hrošči (in ostale težave) pri projektu "pametna garažna vrata"
 
+## Kazalo vsebine
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [Hrošči (in ostale težave) pri projektu "pametna garažna vrata"](#hroi-in-ostale-teave-pri-projektu-pametna-garana-vrata)
+	- [Kazalo vsebine](#kazalo-vsebine)
+	- [#1 - rele ostane zaprt](#1-rele-ostane-zaprt)
+		- [Rešitev #1](#reitev-1)
+	- [#2 - geslo shranjeno kot tekst](#2-geslo-shranjeno-kot-tekst)
+		- [Rešitev #2](#reitev-2)
+	- [#3 - dnevnik dogodkov [izboljšava]](#3-dnevnik-dogodkov-izboljava)
+
+<!-- /TOC -->
+
 ## #1 - rele ostane zaprt
 Prva težava se je pojavila relativno hitro po prvih poskusih avtomatizacije garažnih vrat. In sicer je, iz neznanenga razloga (verjetno slaba povezava) rele, ki služi kot stikalo, občasno ostal zaprt. Posledica tega je bila, da se garažnih vrat ni več dalo upravljati ne s telefonom niti z običajnim stikalom v garaži.
 ### Rešitev #1

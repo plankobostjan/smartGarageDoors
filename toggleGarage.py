@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-#Program namenjen preklopu releja iz zaprtega v odprto stanje, če je le ta predolgo zaprt
-#Uporabljen kot rešitev problema #1 (glej BUGS.md)
+#isto kot toggleGarage.sh, vendar napisano v Pythonu
+#v prihodnosti bo verjetno povsem nadmostil toggleGarage.sh
 
 import RPi.GPIO as GPIO #import the GPIO library
 import time
@@ -22,17 +22,12 @@ def writeLog(task):
     time=datetime.now()
     with open(file, 'a+') as log:
         log.write('[' + str(time) +']' + ' => ' + task + '\n')
+checkLogFilePath)()
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)
-GPIO.output(12, GPIO.HIGH)
-
-while True:
-    if GPIO.input(12) == False:
-        time.sleep(1.5)
-        if GPIO.input(12) == False:
-            writeLog('Relay closed for too long.')
-            GPIO.output(12, not GPIO.input(12))
-            writeLog('Relay opened automatically.')
-    time.sleep(.5)
+GPIO.output(12, 0)
+time.sleep(.5)
+GPIO.output(12, 1)
+writeLog('Garage doors activated.')
 GPIO.cleanup()

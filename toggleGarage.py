@@ -1,33 +1,32 @@
 #!/usr/bin/python
 
-#isto kot toggleGarage.sh, vendar napisano v Pythonu
-#v prihodnosti bo verjetno povsem nadmostil toggleGarage.sh
+#nadomestil toggleGarage.sh
 
 import RPi.GPIO as GPIO #import the GPIO library
 import time
-import datetime
 from datetime import datetime
 import os
 
-path='/home/pi/.garage/logs'
-file='/home/pi/.garage/logs/checkRelay.log'
+logPath='/home/pi/.garage/logs'
+logFile='/home/pi/.garage/logs/toggleRelay.log'
 
 def checkLogFilePath():
     if(not os.path.exists('/home/pi/.garage')):
         os.mkdir('/home/pi/.garage')
-    if(not os.path.exists(path)):
-        os.mkdir(path)
+    if(not os.path.exists(logPath)):
+        os.mkdir(logPath)
 
 def writeLog(task):
     time=datetime.now()
-    with open(file, 'a+') as log:
+    with open(logFile, 'a+') as log:
         log.write('[' + str(time) +']' + ' => ' + task + '\n')
-checkLogFilePath)()
+
+checkLogFilePath()
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)
 GPIO.output(12, 0)
 time.sleep(.5)
 GPIO.output(12, 1)
-writeLog('Garage doors activated.')
+writeLog('Garage doors activated by ' + str(sys.argv[1]) + '.')
 GPIO.cleanup()

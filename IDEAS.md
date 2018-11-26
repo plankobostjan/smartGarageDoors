@@ -19,3 +19,13 @@ Vprašanja, možne težave/omejitve:
 - so lahko Telegram boti zasebni ali so vsi javni?
 - kakšne so možnosti, da si nekdo preko bota omogoči dostop do strežnika?
 - alternative Telegram botu?
+
+## #3 Android aplikacija
+Izdelati Android aplikacijo za upravljanje garažnih vrat, uporavljanje le teh in preverjanje stanja v garaži.
+
+Problem: Kako dostopati do podatkov/programov strežnika preko Android aplikacije?
+
+Možne rešitve:
+- preko spletnega strežnika
+- preko ssh
+- preko Telegram bota??

@@ -31,3 +31,17 @@ Zdaj se je mogoče prijaviti v strežnik brez uporabe gesla.
 ## #3 - dnevnik dogodkov [izboljšava]
 Mislim, da nebi bila slaba ideja, če bi se vsi dogodki na strežniku beležili v dnevniško datoteko.
 Da bi to realiziral, je potrebno implementirati pisanje dnevniške datoteke v vse programe, ki se uporabljajo.
+
+## #4 - 'pi' uporabljen v poti
+Opazil sem, da v poti dnevniške datoteke uprabljam kar uporabniško ime 'pi'. S tem sicer ni nič narobe, vsaj ne dokler se program uprablja na računalniku kjer uporabnik 'pi' obstaja.
+Da bi se izognil nevšečnostim na računalnikih brez uporabnika 'pi', je bolje da uporabljam $USER sistemstko spremenljivko.
+### Rešitev #4
+Težavo sem odpravil tako, da v programu dostopam do sistemskih spremenljivk in tako nastavim pot do domače mape trenutnega uporabnika:
+```Python
+homeFolder=os.environ['HOME']
+```
+
+### #5 - pot do domače mape/mape programa
+Trenutno je pot do mape programa nastavljena absolutno ('/home/pi/.garage'..) To ni dobro, če uporabnik ni 'pi'. Zato bi bilo dobro spremeniti pot ali v '$HOME/.garage' ali v '~/.garage'.
+### Rešitev #5
+Glej [Rešitev #4](#rešitev-#4).

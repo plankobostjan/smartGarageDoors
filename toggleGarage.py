@@ -7,12 +7,13 @@ import time
 from datetime import datetime
 import os
 
-logPath='/home/pi/.garage/logs'
-logFile='/home/pi/.garage/logs/toggleRelay.log'
+homeFolder=os.environ['HOME']
+logPath=homeFolder+'/.garage/logs'
+logFile=homeFolder+'/.garage/logs/toggleRelay.log'
 
 def checkLogFilePath():
-    if(not os.path.exists('/home/pi/.garage')):
-        os.mkdir('/home/pi/.garage')
+    if(not os.path.exists(homeFolder+'/.garage')):
+        os.mkdir(homeFolder+'/.garage')
     if(not os.path.exists(logPath)):
         os.mkdir(logPath)
 

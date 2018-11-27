@@ -20,7 +20,7 @@ Vprašanja, možne težave/omejitve:
 - kakšne so možnosti, da si nekdo preko bota omogoči dostop do strežnika?
 - alternative Telegram botu?
 
-## #3 Android aplikacija
+### #3 Android aplikacija
 Izdelati Android aplikacijo za upravljanje garažnih vrat, uporavljanje le teh in preverjanje stanja v garaži.
 
 Problem: Kako dostopati do podatkov/programov strežnika preko Android aplikacije?
@@ -29,3 +29,7 @@ Možne rešitve:
 - preko spletnega strežnika
 - preko ssh
 - preko Telegram bota??
+- preko API
+
+### #4 API
+Bo potrebno napisati API? Ali obstajajo še druge možnosti komunikacije med aplikacijo in strežnikom?

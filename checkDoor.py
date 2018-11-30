@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-#Program, ki trenutno še ni v uporabi.
-#Sicer namenjen prevrjanju stanja garažnih vrat (odprta/zaprta/priprta).
+#Program, ki trenutno se ni v uporabi.
+#Sicer namenjen prevrjanju stanja garaznih vrat (odprta/zaprta/priprta).
 #Se zna v nadaljevanju zelo spremeniti.
 
 import RPi.GPIO as GPIO #import the GPIO library

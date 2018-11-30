@@ -6,6 +6,9 @@ import RPi.GPIO as GPIO #import the GPIO library
 import time
 from datetime import datetime
 import os
+import sys
+import logging
+logging.basicConfig(filename='toggleGarage.log')
 
 homeFolder=os.environ['HOME']
 logPath=homeFolder+'/.garage/logs'
@@ -22,12 +25,12 @@ def writeLog(task):
     with open(logFile, 'a+') as log:
         log.write('[' + str(time) +']' + ' => ' + task + '\n')
 
-checkLogFilePath()
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)
 GPIO.output(12, 0)
 time.sleep(.5)
 GPIO.output(12, 1)
-writeLog('Garage doors activated by ' + str(sys.argv[1]) + '.')
+#writeLog('Garage doors activated by ' + str(sys.argv[1]) + '.')
+
 GPIO.cleanup()

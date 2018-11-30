@@ -40,8 +40,3 @@ Težavo sem odpravil tako, da v programu dostopam do sistemskih spremenljivk in 
 ```Python
 homeFolder=os.environ['HOME']
 ```
-
-### #5 - pot do domače mape/mape programa
-Trenutno je pot do mape programa nastavljena absolutno ('/home/pi/.garage'..) To ni dobro, če uporabnik ni 'pi'. Zato bi bilo dobro spremeniti pot ali v '$HOME/.garage' ali v '~/.garage'.
-### Rešitev #5
-Glej [Rešitev #4](#rešitev-#4).

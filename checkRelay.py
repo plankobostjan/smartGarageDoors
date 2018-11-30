@@ -8,6 +8,8 @@ import time
 import datetime
 from datetime import datetime
 import os
+import logging
+logging.basicConfig(filename='checkRelay.log')
 
 homeFolder=os.environ['HOME']
 path=homeFolder+'/.garage/logs'
@@ -24,6 +26,8 @@ def writeLog(task):
     with open(file, 'a+') as log:
         log.write('[' + str(time) +']' + ' => ' + task + '\n')
 
+logger=logging.getLogger(__name__)
+
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)
 GPIO.output(12, GPIO.HIGH)
@@ -32,8 +36,10 @@ while True:
     if GPIO.input(12) == False:
         time.sleep(1.5)
         if GPIO.input(12) == False:
-            writeLog('Relay closed for too long.')
+            #writeLog('Relay closed for too long.')
+            logger.warning('Relay closed for too long.')
             GPIO.output(12, not GPIO.input(12))
-            writeLog('Relay opened automatically.')
+            #writeLog('Relay opened automatically.')
+            logger.info('Relay opened automatically.')
     time.sleep(.5)
 GPIO.cleanup()

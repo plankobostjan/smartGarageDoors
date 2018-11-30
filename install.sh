@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-checkDirs{
+check_dirs{
 if [ ! -d "$HOME/.garage"]
 then
   mkdir "$HOME/.garage"
@@ -11,6 +11,9 @@ then
 fi
 }
 
-moveFiles{
+move_files{
   cp autoClose.py .toggleGarage.py checkRelay.py checkDoor.py "$HOME/.garage"
 }
+
+check_dirs
+move_files

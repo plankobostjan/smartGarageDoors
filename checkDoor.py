@@ -7,16 +7,16 @@
 import RPi.GPIO as GPIO #import the GPIO library
 import time
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 name = "Bostjan"
 print("Hello " + name + "!")
 
-if GPIO.input(11) == False:
+if GPIO.input(5) == False:
     print("Door is open")
-elif GPIO.input(13) == False:
+elif GPIO.input(g) == False:
     print("Door is closed")
 else:
     print("Door is ajar")

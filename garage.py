@@ -13,21 +13,6 @@ from pushover import Client
 import ConfigParser
 import io
 
-#TRIG = 11
-#ECHO = 20
-#RELAY = 16
-#OVERRI    GPIO setupDE_CAR = 26
-#OVERRIDE_TEMP = 12
-#LED_MONITOR_CAR = 13
-#LED_MONITOR_TEMP = 21
-#REED_OPEN = 5
-#REED_CLOSED = 6
-#MAX_TEMP = 25
-#MIN_TEMP = 15
-
-#gpio_vars = ['TRIG','ECHO','RELAY','OVERRIDE_CAR','OVERRIDE_TEMP','LED_MONITOR_CAR','LED_MONITOR_TEMP','REED_OPEN','REED_CLOSED']
-#temp_vars = ['MAX_TEMP','MIN_TEMP']
-
 def readConf():
     config = ConfigParser.RawConfigParser(allow_no_value=True)
     config.read(os.environ['HOME']+'/.garage/garage.conf')
@@ -103,7 +88,7 @@ def checkCar():
 def monitorCar():
     GPIO.add_event_detect(OVERRIDE_CAR,GPIO.RISING,bouncetime=300)
     distance = checkCar()
-    for x in range(0,20):
+    for x in range(0,CAR_STATUS_TIMEOUT):
         if GPIO.event_detected(OVERRIDE_CAR):
             lcd_write("Preklic cakanja","na avto!")
             time.sleep(2)
@@ -167,7 +152,7 @@ def monitorCar():
     #    time.sleep(5)
 
 def monitorTemp():
-    time.sleep(5)
+    time.sleep(BEGIN_TEMP_WATCH)
     GPIO.add_event_detect(OVERRIDE_TEMP,GPIO.RISING,bouncetime=300)
     count = 0
     while 1:
@@ -221,7 +206,6 @@ def arguments():
         if checkDoor() == 'zaprta':
             lcd_write("Odpiram garazo!",'')
             toggleGarage()
-            pushover.send_message("Odpiram garažo!", title="Garaža")
             for x in range(0,60):
                 if checkDoor() == 'odprta':
                     lcd_write("Garaza odprta!",'')
@@ -238,32 +222,18 @@ def arguments():
                 t.start()
                 c.join()
                 t.join()
+                while checkDoor() != 'zaprta':
+                    time.sleep(1)
+                lcd_write('Garaza zaprta!','')
+                pushover.send_message('Garaža zaprta!',title="Garaža")
                 destroy()
-                #thread.start_new_thread( monitorTemp,("thread_check_temp", 1,))
             except:
                 print "Couldn't start thread"
                 destroy()
         elif checkDoor() == 'odprta':
             closeDoor()
         else:
-            lcd_write("Garaza priprta!","Premikam vrata!")
-            toggleGarage()
-            for x in range(0,10):
-                if checkDoor() != 'priprta':
-                    break
-                time.sleep(1)
-            if checkDoor() == 'zaprta':
-                lcd_write("Garaza zaprta!",'')
-                time.sleep(2)
-                destroy()
-            elif checkDoor() == 'odprta':
-                lcd_write('Garaza odprta!','')
-                time.sleep(1)
-                closeDoor()
-            else:
-                lcd_write('Napaka! Ne morem','zapreti vrat!')
-                time.sleep(2)
-                destroy()
+            doorAjar()
 
     elif args.car_status == True:
         if checkCar() < 15:
@@ -282,22 +252,46 @@ def closeDoor():
     lcd_write("Zapiram garazo!",'')
     toggleGarage()
     pushover.send_message("Zapiram garažo!", title="Garaža")
-    while checkDoor() != "zaprta":
+    for x in range(9, AJAR_TIMEOUT):
+        if checkDoor() == 'zaprta':
+            lcd_write("Garaza zaprta!",'')
+            pushover.send_message("Garaža zaprta!", title="Garaža")
+            time.sleep(2)
+            destroy()
+            exit(0)
         time.sleep(1)
-    lcd_write("Garaza zaprta!",'')
-    pushover.send_message("Garaža zaprta!", title="Garaža")
-    time.sleep(2)
+    doorAjar()
+
+def doorAjar():
+    for attempts in range(0, AJAR_CLOSE_ATTEMPTS):
+        lcd_write("Garaza priprta!","Premikam vrata!")
+        toggleGarage()
+        for x in range(0, AJAR_TIMEOUT):
+            if checkDoor() != 'priprta':
+                break
+            time.sleep(1)
+        if checkDoor() == 'zaprta':
+            lcd_write("Garaza zaprta!",'')
+            time.sleep(2)
+            destroy()
+        elif checkDoor() == 'odprta':
+            lcd_write('Garaza odprta!','')
+            time.sleep(1)
+            closeDoor()
+        else:
+            lcd_write('Napaka! Ne morem','zapreti vrat!')
+            time.sleep(2)
     destroy()
 
 def destroy():
-    lcd_write("Ola! Sem Abgale,","pametna garaza!")
+    lcd_write("Ola! Sem Meggie,","pametna garaza!")
     GPIO.output(LED_MONITOR_CAR, GPIO.LOW)   # led off
     GPIO.output(LED_MONITOR_TEMP, GPIO.LOW)   # led off
     GPIO.cleanup()
 
 def setup():
     #variables setup
-    global lcd,base_dir,device_folder,device_file,TRIG,ECHO,RELAY,OVERRIDE_CAR,OVERRIDE_TEMP,LED_MONITOR_CAR,LED_MONITOR_TEMP,REED_OPEN,REED_CLOSED,MAX_TEMP,MIN_TEMP
+    global lcd,base_dir,device_folder,device_file,TRIG,ECHO,RELAY,OVERRIDE_CAR,OVERRIDE_TEMP,LED_MONITOR_CAR,LED_MONITOR_TEMP,REED_OPEN,REED_CLOSED,MAX_TEMP,MIN_TEMP,AJAR_TIMEOUT,CAR_STATUS_TIMEOUT,BEGIN_TEMP_WATCH,AJAR_CLOSE_ATTEMPTS
     #read from config
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')
@@ -312,6 +306,10 @@ def setup():
     REED_CLOSED = int(configParser.get('gpio', 'REED_CLOSED'))
     MAX_TEMP = int(configParser.get('temperature', 'MAX_TEMP'))
     MIN_TEMP = int(configParser.get('temperature', 'MIN_TEMP'))
+    AJAR_TIMEOUT = int(configParser.get('timeouts', 'AJAR_TIMEOUT'))
+    CAR_STATUS_TIMEOUT = int(configParser.get('timeouts', 'CAR_STATUS_TIMEOUT'))
+    BEGIN_TEMP_WATCH = int(configParser.get('timeouts', 'BEGIN_TEMP_WATCH'))
+    AJAR_CLOSE_ATTEMPTS = int(configParser.get('timeouts', 'AJAR_CLOSE_ATTEMPTS'))
     #GPIO setup
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(TRIG,GPIO.OUT)
@@ -331,7 +329,7 @@ def setup():
     base_dir = '/sys/bus/w1/devices/'
     device_folder = glob.glob(base_dir + '28*')[0]
     device_file = device_folder + '/w1_slave'
-    lcd_write("Ola! Sem Abgale,","pametna garaza!")
+    lcd_write("Ola! Sem Meggie,","pametna garaza!")
     #pushover setup
     global pushover
     pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))

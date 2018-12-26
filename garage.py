@@ -13,14 +13,11 @@ from pushover import Client
 import ConfigParser
 import io
 
-def readConf():
-    config = ConfigParser.RawConfigParser(allow_no_value=True)
-    config.read(os.environ['HOME']+'/.garage/garage.conf')
-    for variable in gpio_vars:
-        print variable
-        variable = config.get("gpio", variable)
-    for variable in temp_vars:
-        variable = config.get("temperature", variable)
+def readConf(section, vars, val_dict):
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
+    for value in vars:
+        val_dict[value] = int(configParser.get(section, value))
 
 def lcd_write(line1, line2):
     lcd.clear()
@@ -54,30 +51,30 @@ def blink(LED):
     time.sleep(.5)
 
 def toggleGarage():
-    GPIO.output(RELAY, 0)
+    GPIO.output(GPIO_VARS_DICT['RELAY'], 0)
     time.sleep(.5)
-    GPIO.output(RELAY, 1)
+    GPIO.output(GPIO_VARS_DICT['RELAY'], 1)
 
 def checkDoor():
-    if GPIO.input(REED_OPEN) == True:
+    if GPIO.input(GPIO_VARS_DICT['REED_OPEN']) == True:
         return "odprta"
-    elif GPIO.input(REED_CLOSED) == True:
+    elif GPIO.input(GPIO_VARS_DICT['REED_CLOSED']) == True:
         return "zaprta"
     else:
         return "priprta"
 
 def checkCar():
-    GPIO.output(TRIG, False)
+    GPIO.output(GPIO_VARS_DICT['TRIG'], False)
     time.sleep(0.001)
 
-    GPIO.output(TRIG, True)
+    GPIO.output(GPIO_VARS_DICT['TRIG'], True)
     time.sleep(0.00001)
-    GPIO.output(TRIG, False)
+    GPIO.output(GPIO_VARS_DICT['TRIG'], False)
 
-    while GPIO.input(ECHO)==0:
+    while GPIO.input(GPIO_VARS_DICT['ECHO'])==0:
       pulse_start = time.time()
 
-    while GPIO.input(ECHO)==1:
+    while GPIO.input(GPIO_VARS_DICT['ECHO'])==1:
       pulse_end = time.time()
 
     pulse_duration = pulse_end - pulse_start
@@ -86,10 +83,10 @@ def checkCar():
     return round(distance, 2)
 
 def monitorCar():
-    GPIO.add_event_detect(OVERRIDE_CAR,GPIO.RISING,bouncetime=300)
+    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_CAR'],GPIO.RISING,bouncetime=300)
     distance = checkCar()
-    for x in range(0,CAR_STATUS_TIMEOUT):
-        if GPIO.event_detected(OVERRIDE_CAR):
+    for x in range(0,TIMEOUTS_VARS_DICT['CAR_STATUS_TIMEOUT']):
+        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
             lcd_write("Preklic cakanja","na avto!")
             time.sleep(2)
             lcd_write("Garaza","ostaja " + checkDoor() + "!")
@@ -106,11 +103,11 @@ def monitorCar():
                 lcd_write("Cakam ali bo","avto odpeljal...")
             else:
                 lcd_write("Cakam ali bo","avto prakiral...")
-        blink(LED_MONITOR_CAR)
+        blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
         if (distance >=25 and checkCar() <= 20) or (distance <=20 and checkCar() >= 25):
             for i in range(0,5):
-                blink(LED_MONITOR_CAR)
-            if GPIO.event_detected(OVERRIDE_CAR):
+                blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
+            if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
                 lcd_write("Preklic cakanja","na avto!")
                 time.sleep(2)
                 lcd_write("Garaza","ostaja " + checkDoor() + "!")
@@ -152,12 +149,12 @@ def monitorCar():
     #    time.sleep(5)
 
 def monitorTemp():
-    time.sleep(BEGIN_TEMP_WATCH)
-    GPIO.add_event_detect(OVERRIDE_TEMP,GPIO.RISING,bouncetime=300)
+    time.sleep(TIMEOUTS_VARS_DICT['BEGIN_TEMP_WATCH'])
+    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.RISING,bouncetime=300)
     count = 0
     while 1:
-        blink(LED_MONITOR_TEMP)
-        if GPIO.event_detected(OVERRIDE_TEMP):
+        blink(GPIO_VARS_DICT['LED_MONITOR_TEMP'])
+        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_TEMP']):
             lcd_write("Preklic cakanja","neustrezne temp!")
             time.sleep(5)
             lcd_write("Garaza","ostaja " + checkDoor() + "!")
@@ -172,7 +169,7 @@ def monitorTemp():
         temp = read_temp()
         if count % 5 == 0:
             lcd_write("Trenutna temp.:",str(temp)+unichr(223)+"C")
-        if temp < MIN_TEMP:
+        if temp < TEMP_VARS_DICT['MIN_TEMP']:
             lcd_write("Garaza prehladna!","Zapiram garazo!")
             toggleGarage()
             pushover.send_message("Temperatura v garaži prenizka! Zapiram garažo!", title="Garaža prehladna!")
@@ -182,7 +179,7 @@ def monitorTemp():
             pushover.send_message("Garaža zaprta zaradi prenizke temperature!", title="Garaža zarta!")
             time.sleep(2)
             break;
-        elif temp > MAX_TEMP:
+        elif temp > TEMP_VARS_DICT['MAX_TEMP']:
             lcd_write("Garaza pretopla!","Zapiram garazo!")
             toggleGarage()
             pushover.send_message("Temperatura v garaži previsoka! Zapiram garažo!", title="Garaža pretopla!")
@@ -252,7 +249,7 @@ def closeDoor():
     lcd_write("Zapiram garazo!",'')
     toggleGarage()
     pushover.send_message("Zapiram garažo!", title="Garaža")
-    for x in range(9, AJAR_TIMEOUT):
+    for x in range(9, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
         if checkDoor() == 'zaprta':
             lcd_write("Garaza zaprta!",'')
             pushover.send_message("Garaža zaprta!", title="Garaža")
@@ -263,17 +260,17 @@ def closeDoor():
     doorAjar()
 
 def doorAjar():
-    for attempts in range(0, AJAR_CLOSE_ATTEMPTS):
+    for attempts in range(0, TIMEOUTS_VARS_DICT['AJAR_CLOSE_ATTEMPTS']):
         lcd_write("Garaza priprta!","Premikam vrata!")
         toggleGarage()
-        for x in range(0, AJAR_TIMEOUT):
+        for x in range(0, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
             if checkDoor() != 'priprta':
                 break
             time.sleep(1)
         if checkDoor() == 'zaprta':
             lcd_write("Garaza zaprta!",'')
             time.sleep(2)
-            destroy()
+            break
         elif checkDoor() == 'odprta':
             lcd_write('Garaza odprta!','')
             time.sleep(1)
@@ -285,44 +282,40 @@ def doorAjar():
 
 def destroy():
     lcd_write("Ola! Sem Meggie,","pametna garaza!")
-    GPIO.output(LED_MONITOR_CAR, GPIO.LOW)   # led off
-    GPIO.output(LED_MONITOR_TEMP, GPIO.LOW)   # led off
+    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.LOW)   # led off
+    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
     GPIO.cleanup()
 
 def setup():
     #variables setup
-    global lcd,base_dir,device_folder,device_file,TRIG,ECHO,RELAY,OVERRIDE_CAR,OVERRIDE_TEMP,LED_MONITOR_CAR,LED_MONITOR_TEMP,REED_OPEN,REED_CLOSED,MAX_TEMP,MIN_TEMP,AJAR_TIMEOUT,CAR_STATUS_TIMEOUT,BEGIN_TEMP_WATCH,AJAR_CLOSE_ATTEMPTS
+    global lcd,base_dir,device_folder,device_file
     #read from config
-    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
-    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
-    TRIG = int(configParser.get('gpio', 'TRIG'))
-    ECHO = int(configParser.get('gpio', 'ECHO'))
-    RELAY = int(configParser.get('gpio', 'RELAY'))
-    OVERRIDE_CAR = int(configParser.get('gpio', 'OVERRIDE_CAR'))
-    OVERRIDE_TEMP = int(configParser.get('gpio', 'OVERRIDE_TEMP'))
-    LED_MONITOR_CAR = int(configParser.get('gpio', 'LED_MONITOR_CAR'))
-    LED_MONITOR_TEMP = int(configParser.get('gpio', 'LED_MONITOR_TEMP'))
-    REED_OPEN = int(configParser.get('gpio', 'REED_OPEN'))
-    REED_CLOSED = int(configParser.get('gpio', 'REED_CLOSED'))
-    MAX_TEMP = int(configParser.get('temperature', 'MAX_TEMP'))
-    MIN_TEMP = int(configParser.get('temperature', 'MIN_TEMP'))
-    AJAR_TIMEOUT = int(configParser.get('timeouts', 'AJAR_TIMEOUT'))
-    CAR_STATUS_TIMEOUT = int(configParser.get('timeouts', 'CAR_STATUS_TIMEOUT'))
-    BEGIN_TEMP_WATCH = int(configParser.get('timeouts', 'BEGIN_TEMP_WATCH'))
-    AJAR_CLOSE_ATTEMPTS = int(configParser.get('timeouts', 'AJAR_CLOSE_ATTEMPTS'))
+    GPIO_VARS = ['TRIG','ECHO','RELAY','OVERRIDE_CAR','OVERRIDE_TEMP','LED_MONITOR_CAR','LED_MONITOR_TEMP','REED_OPEN','REED_CLOSED']
+    TEMP_VARS = ['MAX_TEMP','MIN_TEMP']
+    TIMEOUTS_VARS = ['AJAR_TIMEOUT','CAR_STATUS_TIMEOUT','BEGIN_TEMP_WATCH','AJAR_CLOSE_ATTEMPTS']
+    LCD_VARS = ['cols','rows','pin_rs','pin_e','d4','d5','d6','d7']
+    global GPIO_VARS_DICT, TEMP_VARS_DICT, TIMEOUTS_VARS_DICT, LCD_VARS_DICT
+    TEMP_VARS_DICT = dict()
+    TIMEOUTS_VARS_DICT = dict()
+    GPIO_VARS_DICT = dict()
+    LCD_VARS_DICT = dict()
+    readConf('gpio',GPIO_VARS,GPIO_VARS_DICT)
+    readConf('temperature',TEMP_VARS,TEMP_VARS_DICT)
+    readConf('timeouts',TIMEOUTS_VARS,TIMEOUTS_VARS_DICT)
+    readConf('lcd',LCD_VARS,LCD_VARS_DICT)
     #GPIO setup
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(TRIG,GPIO.OUT)
-    GPIO.setup(ECHO,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(OVERRIDE_CAR,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(OVERRIDE_TEMP,GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(LED_MONITOR_CAR, GPIO.OUT)   # Set LedPin's mode is output
-    GPIO.setup(LED_MONITOR_TEMP, GPIO.OUT)   # Set LedPin's mode is output
-    GPIO.setup(RELAY, GPIO.OUT)
-    GPIO.setup(REED_OPEN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(REED_CLOSED, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['TRIG'],GPIO.OUT)
+    GPIO.setup(GPIO_VARS_DICT['ECHO'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['OVERRIDE_CAR'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.OUT)   # Set LedPin's mode is output
+    GPIO.setup(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.OUT)   # Set LedPin's mode is output
+    GPIO.setup(GPIO_VARS_DICT['RELAY'], GPIO.OUT)
+    GPIO.setup(GPIO_VARS_DICT['REED_OPEN'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['REED_CLOSED'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     #LCD setup
-    lcd = CharLCD(cols=16, rows=2, pin_rs=25, pin_e=24, pins_data=[23,17,18,22],numbering_mode=GPIO.BCM)
+    lcd = CharLCD(cols=LCD_VARS_DICT['cols'], rows=LCD_VARS_DICT['rows'], pin_rs=LCD_VARS_DICT['pin_rs'], pin_e=LCD_VARS_DICT['pin_e'], pins_data=[LCD_VARS_DICT['d4'],LCD_VARS_DICT['d5'],LCD_VARS_DICT['d6'],LCD_VARS_DICT['d7']],numbering_mode=GPIO.BCM)
     #temp sensor setup
     os.system('modprobe w1-gpio')
     os.system('modprobe w1-therm')
@@ -331,9 +324,10 @@ def setup():
     device_file = device_folder + '/w1_slave'
     lcd_write("Ola! Sem Meggie,","pametna garaza!")
     #pushover setup
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     global pushover
     pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))
-    #read configuration file
 
 if __name__=="__main__":
     try:

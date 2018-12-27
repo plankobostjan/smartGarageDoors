@@ -324,8 +324,6 @@ def setup():
     device_file = device_folder + '/w1_slave'
     lcd_write("Ola! Sem Meggie,","pametna garaza!")
     #pushover setup
-    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
-    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     global pushover
     pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))
 

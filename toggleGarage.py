@@ -8,29 +8,23 @@ from datetime import datetime
 import os
 import sys
 import logging
-logging.basicConfig(filename='toggleGarage.log')
+logging.basicConfig(filename='toggleGarage.log') #določim datoteko v katero se bo shranjeval dnevnik dogodkov
 
-homeFolder=os.environ['HOME']
-logPath=homeFolder+'/.garage/logs'
+homeFolder=os.environ['HOME'] #pridobim domačo mapo uporabnika, ki je pognal program
+logPath=homeFolder+'/.garage/logs' #nastavim mapo v katero se bo shranjevala dnevniška datoteka
 logFile=homeFolder+'/.garage/logs/toggleRelay.log'
 
-def checkLogFilePath():
+def checkLogFilePath(): #metoda, ki preveri ali obstajajo vse ptrebne mape in jih po potrebi ustvari
     if(not os.path.exists(homeFolder+'/.garage')):
         os.mkdir(homeFolder+'/.garage')
     if(not os.path.exists(logPath)):
         os.mkdir(logPath)
 
-def writeLog(task):
-    time=datetime.now()
-    with open(logFile, 'a+') as log:
-        log.write('[' + str(time) +']' + ' => ' + task + '\n')
 
+GPIO.setmode(GPIO.BOARD) #nastavi način številčenja GPIO pinov
+GPIO.setup(12, GPIO.OUT) #nastavi pin 12 kot izhodnega
+GPIO.output(12, 0) #zapre rele
+time.sleep(.5) #počaka 0.5 sekunde
+GPIO.output(12, 1) #odpre rele
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(12, GPIO.OUT)
-GPIO.output(12, 0)
-time.sleep(.5)
-GPIO.output(12, 1)
-#writeLog('Garage doors activated by ' + str(sys.argv[1]) + '.')
-
-GPIO.cleanup()
+GPIO.cleanup() #počisti GPIO nastavitve

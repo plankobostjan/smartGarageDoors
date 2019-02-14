@@ -80,9 +80,7 @@ sudo apt install python python-pip
 ### Rele
 ### Reed stikali
 ### Ultrazvočni senzor razdalje
-### DS18B20 temperaturni senzor
-Ker je bilo to prvič, da sem v projektu uporabil DS18B20 senzor temperature, sem si pomagal z vodičem na [PiMyLifeUp](https://pimylifeup.com/raspberry-pi-temperature-sensor/).
-
+### DS1822 temperaturni senzor
 ### LCD zaslon
 ### Tipki in LED diodi
 >poglej doma kako so priključene komponente
@@ -124,7 +122,7 @@ Da lahko preverjam ali so garažna vrata odprta, priprta oziroma zaprta, moram d
 import RPi.GPIO as GPIO #import the GPIO library
 import time
 
-GPIO.setmode(G0PIO.BCM) #nastavi način števičenja GPIO pinov
+GPIO.setmode(GPIO.BCM) #nastavi način števičenja GPIO pinov
 GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP) #nastavi pin 5 kot vhodni pin in omogoči notranji pull down
 GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_UP) #nastavi pin 6 kot vhodni pin in omogoči notranji pull down
 

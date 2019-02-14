@@ -12,6 +12,11 @@ from multiprocessing import Process
 from pushover import Client
 import ConfigParser
 import io
+import logging
+from logging.config import fileConfig
+
+fileConfig('logging_config.ini')
+logger = logging.getLogger()
 
 def readConf(section, vars, val_dict):
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -87,7 +92,7 @@ def monitorCar():
     distance = checkCar()
     for x in range(0,TIMEOUTS_VARS_DICT['CAR_STATUS_TIMEOUT']):
         if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
-            lcd_write("Preklic cakanja","na avto!")
+            lcd_wrconditionite("Preklic cakanja","na avto!")
             time.sleep(2)
             lcd_write("Garaza","ostaja " + checkDoor() + "!")
             time.sleep(2)
@@ -141,12 +146,6 @@ def monitorCar():
                 lcd_write("Garaza zaprta!",'')
                 time.sleep(2)
                 break
-    #if checkCar() <= 20 and (not GPIO.event_detected(OVERRIDE_CAR) or checkDoor() != 'zaprta'):
-    #    lcd_write("Avto ni odpeljal...","Garaza " + checkDoor() + ".")
-    #    time.sleep(5)
-    #elif not GPIO.event_detected(OVERRIDE_CAR) or checkDoor() != 'zaprta':
-    #    lcd_write("Avto ni parkiral...","Garaza " + checkDoor() + ".")
-    #    time.sleep(5)
 
 def monitorTemp():
     time.sleep(TIMEOUTS_VARS_DICT['BEGIN_TEMP_WATCH'])
@@ -228,7 +227,9 @@ def arguments():
                 print "Couldn't start thread"
                 destroy()
         elif checkDoor() == 'odprta':
-            closeDoor()
+            cd = Process(target=closeDoor(),args=())
+            cd.start()
+            cd.join(60)
         else:
             doorAjar()
 
@@ -324,12 +325,22 @@ def setup():
     device_file = device_folder + '/w1_slave'
     lcd_write("Ola! Sem Meggie,","pametna garaza!")
     #pushover setup
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     global pushover
     pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))
 
+def mainScreen():
+    while True:
+        lcd_write("Trenutna temp.:", str(read_temp()))
+        time.sleep(5)
+
 if __name__=="__main__":
     try:
+        #m = Process(target=mainScreen,args=())
         setup()
+        #m.start()
         arguments()
+        #m.join()
     except KeyboardInterrupt:
         destroy()

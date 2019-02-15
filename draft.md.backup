@@ -33,12 +33,11 @@ Za raziskovalno nalogo, sem si postavil naslednje cilje:
   
   Poleg že naštetih komponent bo uporabil še dve LED diodi in dve tipki. Le te bodo paroma uporabljene kot indikator stanja avta oziroma temperature v garaži. Če bo naprimer garaža odprta in bo vanjo pripeljal avto, se bo pognal program, ki bo po določenem času samodejno zaprl vrata. Istočasno, bo začela utripati ustrezna LED dioda, uporabnik pa bo imel s pritiskom tipke možnost da prekliče samodejno zapiranje garaže. Pri temperaturi je namen LED diode in tipke enak, le da spremljamo temperaturo v garaži.
   
-  > vstavi sliko komponent
-  
- ## Priprava Raspberry Pi-ja
+## Priprava Raspberry Pi-ja
  Da bom lahko uporabljal Raspberry Pi, moram najprej naložiti usterzen opreacijski sistem na Raspberry Pi. Ker za svoj projekt ne potrebujem grafičnega vmesnika, na Raspberry Pi namestim Raspbian Lite. To storim tako, da iz [uradne strani](https://www.raspberrypi.org/downloads/raspbian/) Raspberry Pi prenesem Raspbian Stretch Lite. Nato sledim [navodilom](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) za namestitev operacijskega sistema na microSd kartico, ki jo nato vstavim v Raspberry Pi.
  
 Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, moram pred zagonom omogočiti še SSH ter vnesti podatke, ki jih Raspberry Pi potrebuje za povezavo na WiFi dostopno točko. Da omogočim SSH, na boot particijo microSD katrice dodam datoteko ssh. Da pa se bo Raspberry Pi lahko povezal na WiFi dostopno točko, moram na boot particiji ustvariti datoteko wpa_supplicant.conf, v katero vnesem naslednje:
+
 ```bash
 country=SI
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -61,9 +60,17 @@ ssh pi@IP_RaspberryPi #uporabnik pi, privzeto geslo pa je raspberry
 Ko je povezava vzpostavljena uporabim ukaz *passwd pi*, da spremenim geslo uporabnika pi.
 
 Nato zaženem ukaz *sudo raspi-config*
-> - dodaj screenshot raspi-config
-> - poglej kaj vse si nastavil
-> - razloži kaj in zakaj si nastavil
+
+![raspi-cofing](images/raspi-config.png "raspi-config: Glavni meni")
+
+Pojavi se meni po katerem se premikam s pomočjo tipkovnice.
+
+Tukaj nastavim vse potrebno:
+
+	- hostname spremenim iz "raspberrypi" v "projectPi"
+	- časovno območje nastavim na Europe/Ljubljana
+	- omogočim SPI, I2C in 1-Wire (vse to bom potreboval za priklop senzorjev)
+	- razširim datotečni sistem
 
 Preden namestim kakršnekoli nove pakete, je potrebno sistem posodobiti:
 
@@ -73,13 +80,24 @@ sudo apt update && sudo apt upgrade -y
 
 Ker bom program za upravljanje garažnih vrat napisal v Pythonu, le tega namestim na Raspberry Pi:
 
-```bahs
+```bash
 sudo apt install python python-pip
 ```
 
+Ker pa bom uporabil tudi LCD, moram namestiti še RPILCD knjižnico:
+
+```bash
+sudo pip install RPLCD
+```
+
+S tem je priprava Raspberry Pi-ja zaključena.
+
 ## Priključitev komponent
 ### Rele
+Sam priklop releja je zelo enostaven. Modul z relejem ima tri priključke: VCC, GND in IN1. VCC priključek povežem na 5V pin. GND priključim na GND pin. Za IN1 izberem BMC pin 16.
+
 ### Reed stikali
+
 ### Ultrazvočni senzor razdalje
 ### DS18B20 temperaturni senzor
 Ker je bilo to prvič, da sem v projektu uporabil DS18B20 senzor temperature, sem si pomagal z vodičem na [PiMyLifeUp](https://pimylifeup.com/raspberry-pi-temperature-sensor/).
@@ -138,14 +156,12 @@ else:
 ```
 
 ### Spremljanje temperature
->TODO prilagodi program za spremljanje tempreature tako, da bo, če je pognan brez parametrov v neksončni zanki na LCD izpisoval ternutni čas in temperaturo. V primeru da je pognan z argumentom (-o) se požene, vrne temperaturo in zaključi.
->
->UGOTOVIL da bo lažje, če ločim programa.. Eden za izpisovanje temperature, eden za vračanje vrednosti temp.
 
 #### Izpisovanje časa in temperature na LCD
 
 ```python
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 from datetime import datetime
 import ConfigParser
 from RPLCD.gpio import CharLCD
@@ -154,6 +170,7 @@ import argparse
 import os
 import time
 import glob
+import sys
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -195,7 +212,6 @@ def lcd_write(line1, line2):
 def init():
     #variables setup
     global lcd,base_dir,device_folder,device_file
-    
     #read from config
     GPIO_VARS = ['TRIG','ECHO','RELAY','OVERRIDE_CAR','OVERRIDE_TEMP','LED_MONITOR_CAR','LED_MONITOR_TEMP','REED_OPEN','REED_CLOSED']
     TEMP_VARS = ['MAX_TEMP','MIN_TEMP']
@@ -210,31 +226,76 @@ def init():
     readConf('temperature',TEMP_VARS,TEMP_VARS_DICT)
     readConf('timeouts',TIMEOUTS_VARS,TIMEOUTS_VARS_DICT)
     readConf('lcd',LCD_VARS,LCD_VARS_DICT)
-    
     #GPIO setup
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.OUT)   # Set LedPin's mode is output
     #LCD setup
     lcd = CharLCD(cols=LCD_VARS_DICT['cols'], rows=LCD_VARS_DICT['rows'], pin_rs=LCD_VARS_DICT['pin_rs'], pin_e=LCD_VARS_DICT['pin_e'], pins_data=[LCD_VARS_DICT['d4'],LCD_VARS_DICT['d5'],LCD_VARS_DICT['d6'],LCD_VARS_DICT['d7']],numbering_mode=GPIO.BCM)
-    
     #temp sensor setup
     os.system('modprobe w1-gpio')
     os.system('modprobe w1-therm')
     base_dir = '/sys/bus/w1/devices/'
     device_folder = glob.glob(base_dir + '28*')[0]
     device_file = device_folder + '/w1_slave'
+    #pushover setup
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
 
 def destroy():
     GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
     GPIO.cleanup()
 
 if __name__=="__main__":
+    pid = str(os.getpid())
+    pidfile = "/tmp/LCD_temp.pid"
+
+    if os.path.isfile(pidfile):
+        print "%s already exists, exiting" % pidfile
+        sys.exit()
+    file(pidfile, 'w').write(pid)
     try:
         init()
+        lcd.clear()
+        # Do some actual work here
         while True:
         	lcd_write(datetime.now().strftime("%d.%m.%y  %H:%M"), "Temp: " + str(read_temp())+unichr(223)+"C")
         	time.sleep(1)
-    except KeyboardInterrupt:
+    except:
+        os.unlink(pidfile)
+        #os.delete(pidfile)
         destroy()
+```
+
+#### Samodejno zapiranje zaradi spremembe temperature
+
+```python
+def monitorTemp():
+    time.sleep(TIMEOUTS_VARS_DICT['BEGIN_TEMP_WATCH'])
+    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.RISING,bouncetime=300)
+    count = 0
+    while 1:
+        blink(GPIO_VARS_DICT['LED_MONITOR_TEMP'])
+        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_TEMP']):
+            break
+        elif checkDoor() == 'zaprta':
+            break
+        temp = read_temp()
+        if temp < TEMP_VARS_DICT['MIN_TEMP']:
+            toggleGarage()
+            pushover.send_message("Temperatura v garaži prenizka! Zapiram garažo!", title="Garaža prehladna!")
+            while checkDoor() != "zaprta":
+                time.sleep(1)
+            pushover.send_message("Garaža zaprta zaradi prenizke temperature!", title="Garaža zarta!")
+            time.sleep(2)
+            break;
+        elif temp > TEMP_VARS_DICT['MAX_TEMP']:
+            toggleGarage()
+            pushover.send_message("Temperatura v garaži previsoka! Zapiram garažo!", title="Garaža pretopla!")
+            while checkDoor() != "zaprta":
+                time.sleep(1)
+            pushover.send_message("Garaža zaprta zaradi previsoke temperature!", title="Garaža zarta!")
+            time.sleep(2)
+            break;
+        count += 1
 ```

@@ -15,21 +15,14 @@ import io
 import logging
 from logging.config import fileConfig
 
-#fileConfig('logging_config.ini')
-#logger = logging.getLogger()
+fileConfig('logging_config.ini')
+logger = logging.getLogger()
 
 def readConf(section, vars, val_dict):
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     for value in vars:
         val_dict[value] = int(configParser.get(section, value))
-
-def lcd_write(line1, line2):
-    lcd.clear()
-    lcd.cursor_pos = (0, 0)
-    lcd.write_string(line1)
-    lcd.cursor_pos = (1, 0)
-    lcd.write_string(line2)
 
 def read_temp_raw():
     f = open(device_file, 'r')
@@ -95,13 +88,16 @@ def monitorCar():
             break
         elif checkDoor() == 'zaprta':
             break
+        time.sleep(1)
         blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
         if (distance >=25 and checkCar() <= 20) or (distance <=20 and checkCar() >= 25):
             for i in range(0,5):
                 blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
             if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
+                time.sleep(2)
                 break
             elif checkDoor() != 'odprta':
+                time.sleep(5)
                 break
             if distance >=25 and checkCar() <= 20:
                 toggleGarage()
@@ -130,18 +126,22 @@ def monitorTemp():
             break
         temp = read_temp()
         if temp < TEMP_VARS_DICT['MIN_TEMP']:
+            lcd_write("Garaza prehladna!","Zapiram garazo!")
             toggleGarage()
             pushover.send_message("Temperatura v garaži prenizka! Zapiram garažo!", title="Garaža prehladna!")
             while checkDoor() != "zaprta":
                 time.sleep(1)
+            lcd_write("Garaza zaprta!",'')
             pushover.send_message("Garaža zaprta zaradi prenizke temperature!", title="Garaža zarta!")
             time.sleep(2)
             break;
         elif temp > TEMP_VARS_DICT['MAX_TEMP']:
+            lcd_write("Garaza pretopla!","Zapiram garazo!")
             toggleGarage()
             pushover.send_message("Temperatura v garaži previsoka! Zapiram garažo!", title="Garaža pretopla!")
             while checkDoor() != "zaprta":
                 time.sleep(1)
+            lcd_write("Garaza zaprta!",'')
             pushover.send_message("Garaža zaprta zaradi previsoke temperature!", title="Garaža zarta!")
             time.sleep(2)
             break;
@@ -157,16 +157,16 @@ def arguments():
 
     if args.toggle == True:
         if checkDoor() == 'zaprta':
-            print "odpiram garazo"
+            lcd_write("Odpiram garazo!",'')
             toggleGarage()
-            print "grem v zanko"
             for x in range(0,60):
                 if checkDoor() == 'odprta':
+                    lcd_write("Garaza odprta!",'')
                     pushover.send_message("Garaža odprta!", title="Garaža")
                     time.sleep(2)
                     break;
                 elif x == 60:
-                    time.sleep(1)
+                    exit(0)
                 time.sleep(1)
             try:
                 c = Process(target=monitorCar,args=())
@@ -177,9 +177,12 @@ def arguments():
                 t.join()
                 while checkDoor() != 'zaprta':
                     time.sleep(1)
+                lcd_write('Garaza zaprta!','')
                 pushover.send_message('Garaža zaprta!',title="Garaža")
+                destroy()
             except:
                 print "Couldn't start thread"
+                destroy()
         elif checkDoor() == 'odprta':
             cd = Process(target=closeDoor(),args=())
             cd.start()
@@ -190,33 +193,53 @@ def arguments():
     elif args.car_status == True:
         if checkCar() < 15:
             print "Avto je v garaži!"
+            destroy()
         else:
             print "Avta ni v garaži!"
+            destroy()
     elif args.door_status == True:
+        lcd_write("Garaza " + checkDoor() + "." ,'')
+        time.sleep(2)
         lcd.clear()
+        destroy()
 
 def closeDoor():
+    lcd_write("Zapiram garazo!",'')
     toggleGarage()
     pushover.send_message("Zapiram garažo!", title="Garaža")
     for x in range(9, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
         if checkDoor() == 'zaprta':
+            lcd_write("Garaza zaprta!",'')
             pushover.send_message("Garaža zaprta!", title="Garaža")
             time.sleep(2)
+            destroy()
+            exit(0)
         time.sleep(1)
+    doorAjar()
 
 def doorAjar():
     for attempts in range(0, TIMEOUTS_VARS_DICT['AJAR_CLOSE_ATTEMPTS']):
+        lcd_write("Garaza priprta!","Premikam vrata!")
         toggleGarage()
         for x in range(0, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
             if checkDoor() != 'priprta':
                 break
             time.sleep(1)
         if checkDoor() == 'zaprta':
+            lcd_write("Garaza zaprta!",'')
+            time.sleep(2)
             break
         elif checkDoor() == 'odprta':
+            lcd_write('Garaza odprta!','')
+            time.sleep(1)
             closeDoor()
+        else:
+            lcd_write('Napaka! Ne morem','zapreti vrat!')
+            time.sleep(2)
+    destroy()
 
 def destroy():
+    lcd_write("Ola! Sem Meggie,","pametna garaza!")
     GPIO.output(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.LOW)   # led off
     GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
     GPIO.cleanup()
@@ -249,7 +272,6 @@ def setup():
     GPIO.setup(GPIO_VARS_DICT['RELAY'], GPIO.OUT)
     GPIO.setup(GPIO_VARS_DICT['REED_OPEN'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(GPIO_VARS_DICT['REED_CLOSED'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setwarnings(False)
     #LCD setup
     lcd = CharLCD(cols=LCD_VARS_DICT['cols'], rows=LCD_VARS_DICT['rows'], pin_rs=LCD_VARS_DICT['pin_rs'], pin_e=LCD_VARS_DICT['pin_e'], pins_data=[LCD_VARS_DICT['d4'],LCD_VARS_DICT['d5'],LCD_VARS_DICT['d6'],LCD_VARS_DICT['d7']],numbering_mode=GPIO.BCM)
     #temp sensor setup
@@ -258,31 +280,24 @@ def setup():
     base_dir = '/sys/bus/w1/devices/'
     device_folder = glob.glob(base_dir + '28*')[0]
     device_file = device_folder + '/w1_slave'
+    lcd_write("Ola! Sem Meggie,","pametna garaza!")
     #pushover setup
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     global pushover
     pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))
 
+def mainScreen():
+    while True:
+        lcd_write("Trenutna temp.:", str(read_temp()))
+        time.sleep(5)
+
 if __name__=="__main__":
     try:
-        if os.path.isfile("/tmp/LCD_temp.pid"):
-            os.system("kill $(cat /tmp/LCD_temp.pid)")
-            os.unlink("/tmp/LCD_temp.pid")
         #m = Process(target=mainScreen,args=())
         setup()
-        lcd.clear()
         #m.start()
-        print "pred argumenti"
-        os.system('python temperature_LCD.py &')
         arguments()
         #m.join()
     except KeyboardInterrupt:
         destroy()
-    finally:
-        destroy()
-        if os.path.isfile("/tmp/LCD_temp.pid"):
-            os.system("kill $(cat /tmp/LCD_temp.pid)")
-            os.unlink("/tmp/LCD_temp.pid")
-        os.system('python temperature_LCD.py &')
-        #os.system('python temperature_LCD.py &')

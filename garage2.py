@@ -15,10 +15,15 @@ import io
 import logging
 from logging.config import fileConfig
 
-#fileConfig('logging_config.ini')
-#logger = logging.getLogger()
-
 GPIO.setwarnings(False)
+
+#fileConfig('logging_config.ini')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+
+fh = logging.FileHandler(os.environ['HOME']+'/.garage/logs/garage.log')
+fh.setLevel(logging.WARNING)
+logger.addHandler(fh)
 
 def readConf(section, vars, val_dict):
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
@@ -158,7 +163,6 @@ def arguments():
     args = parser.parse_args()
 
     if args.toggle == True:
-        print 'in toggle'
         if checkDoor() == 'zaprta':
             print "odpiram garazo"
             toggleGarage()
@@ -184,13 +188,12 @@ def arguments():
             except:
                 print "Couldn't start thread"
         elif checkDoor() == 'odprta':
-            print 'vrata odprta'
             cd = Process(target=closeDoor(),args=())
             cd.start()
             cd.join(60)
         else:
-            print 'doors ajar'
             doorAjar()
+
 
     elif args.car_status == True:
         if checkCar() < 15:
@@ -199,9 +202,6 @@ def arguments():
             print "Avta ni v garaži!"
     elif args.door_status == True:
         lcd.clear()
-    else:
-        print 'nic'
-        destroy()
 
 def closeDoor():
     toggleGarage()
@@ -225,11 +225,15 @@ def doorAjar():
             closeDoor()
 
 def destroy():
-    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.LOW)   # led off
-    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
+    ##GPIO.output(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.LOW)   # led off
+    #GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
     GPIO.cleanup()
+    if os.path.isfile("/tmp/LCD_temp.pid"):
+        os.system("kill $(cat /tmp/LCD_temp.pid)")
+        os.unlink("/tmp/LCD_temp.pid")
+    os.system('python temperature_LCD.py &')
 
-def setup():
+def init():
     #variables setup
     global lcd,base_dir,device_folder,device_file
     #read from config
@@ -237,7 +241,6 @@ def setup():
     TEMP_VARS = ['MAX_TEMP','MIN_TEMP']
     TIMEOUTS_VARS = ['AJAR_TIMEOUT','CAR_STATUS_TIMEOUT','BEGIN_TEMP_WATCH','AJAR_CLOSE_ATTEMPTS']
     LCD_VARS = ['cols','rows','pin_rs','pin_e','d4','d5','d6','d7']
-    global GPIO_VARS_DICT, TEMP_VARS_DICT, TIMEOUTS_VARS_DICT, LCD_VARS_DICT
     TEMP_VARS_DICT = dict()
     TIMEOUTS_VARS_DICT = dict()
     GPIO_VARS_DICT = dict()
@@ -274,23 +277,21 @@ def setup():
 
 if __name__=="__main__":
     try:
+        logger.debug("Preverjam ali temperature_LCD.py teče.")
         if os.path.isfile("/tmp/LCD_temp.pid"):
+            logger.debug("temperature_LCD.py teče.")
             os.system("kill $(cat /tmp/LCD_temp.pid)")
+            logger.debug("temperature_LCD.py uničen.")
             os.unlink("/tmp/LCD_temp.pid")
-        #m = Process(target=mainScreen,args=())
-        setup()
-        lcd.clear()
-        #m.start()
-        print "pred argumenti"
+            logger.debug("Datoteka /tmp/LCD_temp.pid odstranjena.")
+        logger.debug("Zaganjam temperature_LCD.py")
         os.system('python temperature_LCD.py &')
+        logger.debug("temperature_LCD.py zagnan.")
+        logger.warning("Zaganjam init.")
+        init()
+        logger.warning("Init končan.")
         arguments()
-        #m.join()
     except KeyboardInterrupt:
         destroy()
     finally:
         destroy()
-        if os.path.isfile("/tmp/LCD_temp.pid"):
-            os.system("kill $(cat /tmp/LCD_temp.pid)")
-            os.unlink("/tmp/LCD_temp.pid")
-        os.system('python temperature_LCD.py &')
-#os.system('python temperature_LCD.py &')

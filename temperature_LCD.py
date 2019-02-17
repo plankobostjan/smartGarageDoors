@@ -10,6 +10,8 @@ import time
 import glob
 import sys
 
+GPIO.setwarnings(False)
+
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
@@ -81,7 +83,6 @@ def init():
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')
 
 def destroy():
-    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
     GPIO.cleanup()
 
 if __name__=="__main__":
@@ -95,11 +96,9 @@ if __name__=="__main__":
     try:
         init()
         lcd.clear()
-        # Do some actual work here
         while True:
         	lcd_write(datetime.now().strftime("%d.%m.%y  %H:%M"), "Temp: " + str(read_temp())+unichr(223)+"C")
         	time.sleep(1)
     except:
         os.unlink(pidfile)
-        #os.delete(pidfile)
         destroy()

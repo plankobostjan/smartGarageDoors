@@ -20,6 +20,16 @@ from logging.config import fileConfig
 
 GPIO.setwarnings(False)
 
+homeFolder=os.environ['HOME'] #pridobim domačo mapo uporabnika, ki je pognal program
+logPath=homeFolder+'/.garage/logs' #nastavim mapo v katero se bo shranjevala dnevniška datoteka
+logFile=homeFolder+'/.garage/logs/toggleRelay.log'
+
+def checkLogFilePath(): #metoda, ki preveri ali obstajajo vse ptrebne mape in jih po potrebi ustvari
+    if(not os.path.exists(homeFolder+'/.garage')):
+        os.mkdir(homeFolder+'/.garage')
+    if(not os.path.exists(logPath)):
+        os.mkdir(logPath)
+
 def readConf(section, vars, val_dict):
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')

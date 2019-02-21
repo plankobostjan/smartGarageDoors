@@ -168,33 +168,45 @@ def arguments():
     args = parser.parse_args()
 
     if args.toggle == True:
-        print 'in toggle'
+        logging.info("Toggle garage activated.")
         if checkDoor() == 'zaprta':
-            print "odpiram garazo"
+            logging.info("Garage closed.")
             toggleGarage()
-            print "grem v zanko"
+            logging.info("Opening garage...")
+            logging.info("Waiting for garage to open.")
             for x in range(0,60):
                 if checkDoor() == 'odprta':
+                    logging.info("Garage opened.")
+                    logging.debug("Sending push notifiaction over Pushover...")
                     pushover.send_message("Garaža odprta!", title="Garaža")
-                    time.sleep(2)
+                    logging.debug("Pushover notification send.")
                     break;
                 elif x == 60:
+                    logging.warning("Couldn't open garage.")
                     time.sleep(1)
                 time.sleep(1)
             try:
+                logging.debug("Starting car starus monitoring...")
                 c = Process(target=monitorCar,args=())
                 c.start()
+                logging.debug("Car monitoring running.")
+                logging.debug("Starting temperature monitoring...")
                 t = Process(target=monitorTemp,args=())
                 t.start()
+                logging.debug("Temperature monitoring running.")
                 c.join()
                 t.join()
+                logging.debug("Waiting for doors to close...")
                 while checkDoor() != 'zaprta':
                     time.sleep(1)
+                logging.info("Doors closed.")
+                logging.debug("Sending Pushover notification...")
                 pushover.send_message('Garaža zaprta!',title="Garaža")
+                logging.debug("Pushover notification sent.")
             except:
                 print "Couldn't start thread"
         elif checkDoor() == 'odprta':
-            print 'vrata odprta'
+            logging.debug("Garage is open.")
             cd = Process(target=closeDoor(),args=())
             cd.start()
             cd.join(60)
@@ -216,7 +228,7 @@ def arguments():
 def closeDoor():
     toggleGarage()
     pushover.send_message("Zapiram garažo!", title="Garaža")
-    for x in range(9, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
+    for x in range(0, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
         if checkDoor() == 'zaprta':
             pushover.send_message("Garaža zaprta!", title="Garaža")
             time.sleep(2)
@@ -243,6 +255,7 @@ def setup():
     #variables setup
     global lcd,base_dir,device_folder,device_file
     #read from config
+    logging.debug("Setting variables for reading from config file...")
     GPIO_VARS = ['TRIG','ECHO','RELAY','OVERRIDE_CAR','OVERRIDE_TEMP','LED_MONITOR_CAR','LED_MONITOR_TEMP','REED_OPEN','REED_CLOSED']
     TEMP_VARS = ['MAX_TEMP','MIN_TEMP']
     TIMEOUTS_VARS = ['AJAR_TIMEOUT','CAR_STATUS_TIMEOUT','BEGIN_TEMP_WATCH','AJAR_CLOSE_ATTEMPTS']
@@ -252,11 +265,21 @@ def setup():
     TIMEOUTS_VARS_DICT = dict()
     GPIO_VARS_DICT = dict()
     LCD_VARS_DICT = dict()
+    logging.debug("Variables for reading from config file set.")
+    logging.debug("Reading GPIO configuration..."")
     readConf('gpio',GPIO_VARS,GPIO_VARS_DICT)
+    logging.debug("Finished reading GPIO configuration")
+    logging.debug("Reading temperature configuration..."")
     readConf('temperature',TEMP_VARS,TEMP_VARS_DICT)
+    logging.debug("Finished reading temperature configuration")
+    logging.debug("Reading timeouts configuration..."")
     readConf('timeouts',TIMEOUTS_VARS,TIMEOUTS_VARS_DICT)
+    logging.debug("Finished reading timeouts configuration")
+    logging.debug("Reading LCD configuration..."")
     readConf('lcd',LCD_VARS,LCD_VARS_DICT)
+    logging.debug("Finished reading LCD configuration")
     #GPIO setup
+    logging.debug("Setting up GPIO...")
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(GPIO_VARS_DICT['TRIG'],GPIO.OUT)
     GPIO.setup(GPIO_VARS_DICT['ECHO'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
@@ -268,31 +291,45 @@ def setup():
     GPIO.setup(GPIO_VARS_DICT['REED_OPEN'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(GPIO_VARS_DICT['REED_CLOSED'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setwarnings(False)
+    logging.debug("GPIO setup finished.")
     #LCD setup
+    logging.debug("Setting up LCD...")
     lcd = CharLCD(cols=LCD_VARS_DICT['cols'], rows=LCD_VARS_DICT['rows'], pin_rs=LCD_VARS_DICT['pin_rs'], pin_e=LCD_VARS_DICT['pin_e'], pins_data=[LCD_VARS_DICT['d4'],LCD_VARS_DICT['d5'],LCD_VARS_DICT['d6'],LCD_VARS_DICT['d7']],numbering_mode=GPIO.BCM)
+    logging.debug("LCD setup finished.")
     #temp sensor setup
+    logging.debug("Setting up temperature sensor...")
     os.system('modprobe w1-gpio')
     os.system('modprobe w1-therm')
     base_dir = '/sys/bus/w1/devices/'
     device_folder = glob.glob(base_dir + '28*')[0]
     device_file = device_folder + '/w1_slave'
+    logging.debug("Temperature sensor setup finished.")
     #pushover setup
+    logging.debug("Setting up Pushover...")
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     global pushover
     pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))
+    logging.debug("Pushover sertup finished.")
 
 if __name__=="__main__":
     try:
+        logging.debug("Checking if /tmp/LCD_temp.pid exists...")
         if os.path.isfile("/tmp/LCD_temp.pid"):
+            logging.debug("/tmp/LCD_temp.pid exists.")
+            logging.debug("Killing LCD_temperature.py...")
             os.system("kill $(cat /tmp/LCD_temp.pid)")
+            logging.debug("LCD_temperature.py killed.")
+            logging.debug("Removing /tmp/LCD_temp.pid...")
             os.unlink("/tmp/LCD_temp.pid")
+            logging.debug("/tmp/LCD_temp.pid removed.")
         #m = Process(target=mainScreen,args=())
         setup()
         lcd.clear()
         #m.start()
-        print "pred argumenti"
+        logging.debug("Starting temperature_LCD.py...")
         os.system('python temperature_LCD.py &')
+        logging.debug("LCD_temperature running.")
         arguments()
         #m.join()
     except KeyboardInterrupt:

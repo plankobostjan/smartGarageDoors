@@ -282,8 +282,8 @@ Ko je povezava vzpostavljena uporabim ukaz \textit{passwd pi}, da spremenim gesl
 Nato zaženem ukaz \textit{sudo raspi-config}
 \begin{figure}[h]
 \centering
-\includegraphics[width=10cm, height=6cm]{images/raspi-config.png}
-\source{raspi-config: Glavni meni}{}
+\includegraphics[width=10cm, height=5cm]{images/raspi-config.png}
+\caption{raspi-config: Glavni meni}
 \end{figure}
 
 Pojavi se meni po katerem se premikam s pomočjo tipkovnice.
@@ -375,11 +375,32 @@ def checkCar():
 \end{minted}
 
 \subsection{DS18B20 temperaturni senzor}
-Ker je bilo to prvič, da sem v projektu uporabil DS18B20 senzor temperature, sem si pomagal z vodičem na [PiMyLifeUp](https://pimylifeup.com/raspberry-pi-temperature-sensor/).
+Ker je bilo to prvič, da sem v projektu uporabil DS18B20 senzor temperature, sem si pomagal z vodičem na PiMyLifeUp\cite{PiMyLifeUp_DS18B20}.
 
+Sam priklop je povsem enostaven. Vse kar potrebujemo je DS18B20 senzor temperature in pa 4.7\SI{4.7}{\kohm} upor. Vcc nogico senzorja povežem na 3.3V. GND nogico na GND. DATA nogico pa na BCM pin 19. Upor namestim med 3.3V in DATA nogico senzorja.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/DS18B20_diagram.png}
+\caption{Priklop DS18B20}
+\end{figure}
+\newpage
 \subsection{LCD zaslon}
+Tudi priklop LCD zaslona je bil zame nekaj novega. Zato sem si pomagal z vodičem na circuitbasics.com\cite{CB_LCD}.
+Za priklop potrebujem:
+\begin{itemize}
+    \item LCD zaslon
+    \item 2 \SI{10}{\kohm} potenciometra
+\end{itemize}
+LCD zaslon priklopim na Raspberry Pi kot je prikazano na spodnji sliki.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/LCD_4bit.png}
+\caption{Priklop LCD zaslona}
+\end{figure}
+\newpage
 \subsection{Tipki in LED diodi}
-
+Priklop tipk in LED diod je zelo enostaven. Tipki povežem preko 3.3V na poljuben GPIO pin, pri tem pazim le, da je pin nastavljen kot vhodni in da je omogočen notranji pull down upor.
+LED diodi pa priklopim preko \SI{270}{\ohm} uporov iz poljubnega GPIO pina na GND. GPIO pin mora biti nastavljen kot izhodni.
 \section{Programske rešitve}
 \subsection{Premikanje garažnih vrat}
 \begin{minted}[mathescape,
@@ -395,145 +416,17 @@ def toggleGarage():
     GPIO.output(GPIO_VARS_DICT['RELAY'], 1)
 \end{minted}
 \subsection{Preveranje stanja garažnih vrat}
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=0,
-               frame=lines,
-               breaklines=true,
-               framesep=2mm]{python}
-  
-def checkDoor():
-    if GPIO.input(GPIO_VARS_DICT['REED_OPEN']) == True:
-        return "odprta"
-    elif GPIO.input(GPIO_VARS_DICT['REED_CLOSED']) == True:
-        return "zaprta"
-    else:
-        return "priprta"
-\end{minted}
+
 \subsection{Spremljanje temperature}
 
 \subsubsection{Izpisovanje temperature na LCD}
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=0,
-               frame=lines,
-               breaklines=true,
-               framesep=2mm]{python}
-  
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-from datetime import datetime
-import ConfigParser
-from RPLCD.gpio import CharLCD
-import RPi.GPIO as GPIO
-import argparse
-import os
-import time
-import glob
-import sys
 
-if __name__=="__main__":
-    pid = str(os.getpid())
-    pidfile = "/tmp/LCD_temp.pid"
-
-    if os.path.isfile(pidfile):
-        print "%s already exists, exiting" % pidfile
-        sys.exit()
-    file(pidfile, 'w').write(pid)
-    try:
-        init()
-        lcd.clear()
-        # Do some actual work here
-        while True:
-        	lcd_write(datetime.now().strftime("%d.%m.%y  %H:%M"), "Temp: " + str(read_temp())+unichr(223)+"C")
-        	time.sleep(1)
-    except:
-        os.unlink(pidfile)
-        #os.delete(pidfile)
-        destroy()
-\end{minted}
 
 \subsubsection{Samodejno zapiranje ob neprimerni temperaturi}
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=0,
-               frame=lines,
-               breaklines=true,
-               framesep=2mm]{python}
-  
-def monitorTemp():
-    time.sleep(TIMEOUTS_VARS_DICT['BEGIN_TEMP_WATCH'])
-    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.RISING,bouncetime=300)
-    count = 0
-    while 1:
-        blink(GPIO_VARS_DICT['LED_MONITOR_TEMP'])
-        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_TEMP']):
-            break
-        elif checkDoor() == 'zaprta':
-            break
-        temp = read_temp()
-        if temp < TEMP_VARS_DICT['MIN_TEMP']:
-            toggleGarage()
-            pushover.send_message("Temperatura v garaži prenizka! Zapiram garažo!", title="Garaža prehladna!")
-            while checkDoor() != "zaprta":
-                time.sleep(1)
-            pushover.send_message("Garaža zaprta zaradi prenizke temperature!", title="Garaža zarta!")
-            time.sleep(2)
-            break;
-        elif temp > TEMP_VARS_DICT['MAX_TEMP']:
-            toggleGarage()
-            pushover.send_message("Temperatura v garaži previsoka! Zapiram garažo!", title="Garaža pretopla!")
-            while checkDoor() != "zaprta":
-                time.sleep(1)
-            pushover.send_message("Garaža zaprta zaradi previsoke temperature!", title="Garaža zarta!")
-            time.sleep(2)
-            break;
-        count += 1
-\end{minted}
+
 
 \subsection{Samodejno zapiranje glede na avto}
-\begin{minted}[mathescape,
-               linenos,
-               numbersep=5pt,
-               gobble=0,
-               frame=lines,
-               breaklines=true,
-               framesep=2mm]{python}
-  
-def monitorCar():
-    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_CAR'],GPIO.RISING,bouncetime=300)
-    distance = checkCar()
-    for x in range(0,TIMEOUTS_VARS_DICT['CAR_STATUS_TIMEOUT']):
-        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
-            break
-        elif checkDoor() == 'zaprta':
-            break
-        blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
-        if (distance >=25 and checkCar() <= 20) or (distance <=20 and checkCar() >= 25):
-            for i in range(0,5):
-                blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
-            if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
-                break
-            elif checkDoor() != 'odprta':
-                break
-            if distance >=25 and checkCar() <= 20:
-                toggleGarage()
-                while checkDoor() != "zaprta":
-                    time.sleep(5)
-                time.sleep(2)
-                break
-            elif distance <=20 and checkCar() >= 25:
-                toggleGarage()
-                pushover.send_message("Avto odpeljal! Zapiram garažo!", title="Garaža")
-                while checkDoor() != "zaprta":
-                    time.sleep(5)
-                    pushover.send_message("Avto odpeljal! Garaža zaprta!", title="Garaža")
-                time.sleep(2)
-                break
-\end{minted}
+
 
 \subsection{Če garažnih vrat ni možno zapreti}
 \begin{minted}[mathescape,

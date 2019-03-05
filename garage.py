@@ -211,7 +211,6 @@ def arguments():
             cd.start()
             cd.join(60)
         else:
-            print 'doors ajar'
             doorAjar()
 
     elif args.car_status == True:
@@ -243,8 +242,8 @@ def doorAjar():
             time.sleep(1)
         if checkDoor() == 'zaprta':
             break
-        elif checkDoor() == 'odprta':
-            closeDoor()
+        #elif checkDoor() == 'odprta':
+        #    closeDoor()
 
 def destroy():
     GPIO.output(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.LOW)   # led off
@@ -340,4 +339,3 @@ if __name__=="__main__":
             os.system("kill $(cat /tmp/LCD_temp.pid)")
             os.unlink("/tmp/LCD_temp.pid")
         os.system('python temperature_LCD.py &')
-#os.system('python temperature_LCD.py &')

@@ -25,6 +25,13 @@
 \usepackage{indentfirst} %indent first paragraph
 \setlength{\parindent}{4mm}
 
+\usepackage{datetime}
+\newdateformat{monthyeardate}{%
+\THEYEAR}
+
+\renewcommand{\figurename}{Slika}
+\renewcommand\bibname{Literatura}
+
 %%--------------------------------Figures setup--------------------------------%%
 \usepackage{graphicx} %for  images
 \usepackage{grffile} %for pngs
@@ -58,7 +65,7 @@
 \DeclareCaptionStyle{singlelinecentered}
   [justification=Centering]% centered if single line and no `singlelinecheck=false`
   {style=mystyle}% other captions are left aligned
-  
+
 \captionsetup{style=singlelinecentered}
 %%--------------------------------End of caption setup--------------------------------%%
 
@@ -138,7 +145,7 @@
    	%------------------------------------------------
 	%	Author(s)
 	%------------------------------------------------
-	
+
 	\begin{minipage}{0.4\textwidth}
 		\begin{flushleft}
 		\vspace{4.5mm}
@@ -167,8 +174,62 @@
 	%------------------------------------------------
 	\begin{minipage}{0.5\textwidth}
 		\begin{center}
-		    \vspace{3mm}
-			\large{Celje, \today}
+		    \vspace{5mm}
+		    Mestna občina Celje, Mladi za Celje\\
+			\large{Celje, \monthyeardate\today}
+		\end{center}
+	\end{minipage}
+	\fancyfoot{}
+\end{titlepage}
+%%--------------------------------End of title page--------------------------------%%
+
+\begin{titlepage}
+\thispagestyle{empty}
+   \center
+   \fancyhead{}
+   \large{Šolski center Celje, Srednja šola za kemijo, elektrotehniko in računalništvo}\\[1.5cm]
+   \vspace*{\fill}
+   \begin{center}
+   \Huge{\bfseries Pametna garažna vrata}\\
+   \vspace{1mm}
+   \large{Raziskovalna naloga}
+   \end{center}
+   \vspace*{\fill}
+   	%------------------------------------------------
+	%	Author(s)
+	%------------------------------------------------
+
+	\begin{minipage}{0.4\textwidth}
+		\begin{flushleft}
+		\vspace{4.5mm}
+			\large
+			\texttt{Avtor}\\
+			Boštjan \textsc{Planko}, R-4.A \\ %Author's name
+			%\vspace{0.2cm}
+			%\texttt{Submission date} \\
+			%\large{December 7, 2017}
+		\end{flushleft}
+	\end{minipage}
+	~
+	%------------------------------------------------
+	%	Supervisor(s)
+	%------------------------------------------------
+	\begin{minipage}{0.5\textwidth}
+		\begin{flushright}
+			\large
+			\texttt{Mentor}\\
+			Borut \textsc{Slemenšek} % Supervisor's name
+		\end{flushright}
+	\end{minipage}
+	~
+	%------------------------------------------------
+	%	Date
+	%------------------------------------------------
+	\begin{minipage}{0.5\textwidth}
+		\begin{center}
+		    \vspace{5mm}
+		    Mestna občina Celje, Mladi za Celje\\
+			\large{Celje, \monthyeardate\today}
 		\end{center}
 	\end{minipage}
 	\fancyfoot{}
@@ -179,8 +240,11 @@
 \newpage
 \thispagestyle{empty}
 \section*{Povzetek}
-
+Raziskoval sem podrčje elektronike in avtomizacije. Glavni cilj razsikovalne naloge je bilo ali je mogoče avtomatizirati garažna vrata z Raspberry Pi računalnikom. Potrebno znanje, ki ga še nisem imel, sem pridobil z matodo analize dokumentov in metodo eksperimenta. Tekom nastajanja projekta sem prišel do zaključka, da je osnovna ideja sicer enostavna, v praksi pa stvari zelo hitro postanejo zelo kompleksne. Rezultat moje raziskovalne naloge je delujoč prototip, na katerem delujejo vse osnovne funkcije. Je dober temelj za nadaljni razvoj in širitev projekta.
+\section*{Summary}
+I was researching the field of electroics and automization. Main goal of this paper was finding out if it is possible to automate garage doors using Raspberry Pi. I had to analize a lot of documentation to get the knowledge that was required in order to finish my project. I also had to experiment quite a lot. In the end I came to the conclusion that the basic idea for my project is quite basic. Despite that, things can get really complicated really fast. End result of my work is working prototype that has a lot of possibilities to expand the project even further.
 \section*{Ključne besede}
+raspberry pi, senzorji, python, raspbian, avtomizacija
 %%--------------------------------End of abstract--------------------------------%%
 
 %%--------------------------------Beginning of ToC--------------------------------%%
@@ -189,7 +253,6 @@
 \pagenumbering{gobble}
 \thispagestyle{empty}
 \tableofcontents
-\listoftables
 \listoffigures
 \renewcommand{\baselinestretch}{1.0}\normalsize
 %%--------------------------------End of ToC--------------------------------%%
@@ -204,17 +267,19 @@
 %%--------------------------------End of head & foot--------------------------------%%
 
 %%--------------------------------Beginning of Section 1 aka Intro--------------------------------%%
+
+\newpage
 \pagenumbering{arabic}
-\setcounter{page}{4}
+\setcounter{page}{6}
 \section{Uvod}
 \subsection{Opis problema}
 Problem današnjih garažnih vrat je, da jih je običajni možno odpreti samo na dva načina. S priloženim daljincem ali s tipko, običajno nameščeno na notranji strani garažnih vrat. Če želimo torej garažna vrata odpretni moramo bitjt ali v garaži ali pa moramo imeti pri sebi daljinec. To pa je v vsakdanjem življenju nepraktično, sploh v primeru, ko pri hiši živi veliko ljudi, vsi pa rabijo dostop do garaže.
 
 V tej nalogi bom predstavil svojo idejo, pametna garažna vrata, kot sem si jih zamislil in poskušal realizirati.
 
-\subsection{Cilji}
-Za raziskovalno nalogo, sem si postavil naslednje cilje:
-\begin{itemize}
+\subsection{Hipoteze}
+Za raziskovalno nalogo, sem si postavil naslednje hipoteze:
+\begin{enumerate}
     \item Garažna vrata bo možno upravljati preko telefona
     \item Garažna vrata bo možno upravljati preko spletne strani
     \item Raspberry Pi bo spremljal ali je avto v garaži ali ne in glede na to samodejno zapiral garažna vrata
@@ -223,26 +288,33 @@ Za raziskovalno nalogo, sem si postavil naslednje cilje:
     \item Raspberry Pi nas bo preko potisnih obvestil obveščal o spremembi stanja garažnih vrat
     \item Raspberry Pi bo beležil kdo in kdaj je aktiviral garažna vrata
     \item uporabnik bo imel možnost preklicati samodejno zapiranje vrat
-\end{itemize}
- 
- \newpage
+\end{enumerate}
+
+\section{Raziskovalne metode}
+Tekom raziskovanja sem uporabil kombinacijo različnih metod, saj sem tako najlažje prišel do rešitve problema.
+
+Na začetku raziskovanja sem uporabljal predvsem metodo analize dokumentov. Prebral in preučil sem veliko dokumentacije, objave na forumih. Tako sem pridobil osnovno podlago za začetek dela na svojem projektu.
+
+Pri programiranju in sestavljanju prototipa je bila uporabljena predvsem metoda eksperimenta. Poskusil sem veliko različnih konfiguracij in programskih rešitev, na koncu pa sem izbral tiste, ki so se mi zdele najbolj optimalne.
+\newpage
+
 \section{Izbira komponent}
   Ker ne potrebujem veliko precesorske moči, hkrati pa želim, da je moj projekt kar se da kompakten kot krmilnik izberem Raspberry Pi Zero W. To je najmanjša verzija Raspberry Pi-ja, z že vgrajenim WiFi-jem in Bluetoothom. Slednja bosta pri projektu najverjetneje potrebna.
-  
+
   Za upravljanje garažnih vrat bom uporabil 1-kanalni rele. Le tega bom sprogramiral tako, da se bo obnašal kot tipka tj. zaprl se bo za kratek časovni interval prib. 0.5s, nato pa se znova odprl. Nameščen bo v bližini že obstoječe tipke, ki se uporablja za upravljanje garažnih vrat. Z le to bo vzporedno vezan.
-  
+
   Za spremljanje stanja garažnih vrat bom uporabil reed stikala. In sicer dve stikali ter in magnet. Stikali bosta nameščeni na ogrodje vrat, medtem ko bo magnet nameščen neposredno na garažna vrata.
-  
-  Za spremljanje temperature v garaži uporabim 1-Wire digitalni element.... (nevem imena zle). Le ta bo nameščen nekje v garaži, po možnosti meter od tal, na najmanj prepišnem mestu v garaži.
-  
+
+  Za spremljanje temperature v garaži uporabim 1-Wire digitalni element DS18B20. Le ta bo nameščen nekje v garaži, po možnosti meter od tal, na najmanj prepišnem mestu v garaži.
+
   Ultrazvočni senzor, s katerim bom preverjal ali je avto v garaži ali ne, bo nameščen ali na stropbu garaže, najverjetneje pa kar na motorju garažnih vrat.
-  
+
   Ker želim, da bo mogoče v garaži preveriti ternutno temperaturo ter čas, bom uporabil tudi 16x2 LCD zaslon.
-  
+
   Poleg že naštetih komponent bo uporabil še dve LED diodi in dve tipki. Le te bodo paroma uporabljene kot indikator stanja avta oziroma temperature v garaži. Če bo naprimer garaža odprta in bo vanjo pripeljal avto, se bo pognal program, ki bo po določenem času samodejno zaprl vrata. Istočasno, bo začela utripati ustrezna LED dioda, uporabnik pa bo imel s pritiskom tipke možnost da prekliče samodejno zapiranje garaže. Pri temperaturi je namen LED diode in tipke enak, le da spremljamo temperaturo v garaži.
 \section{Priprava Raspberry Pi-ja}
- Da bom lahko uporabljal Raspberry Pi, moram najprej naložiti usterzen opreacijski sistem na Raspberry Pi. Ker za svoj projekt ne potrebujem grafičnega vmesnika, na Raspberry Pi namestim Raspbian Lite. To storim tako, da iz [uradne strani](https://www.raspberrypi.org/downloads/raspbian/) Raspberry Pi prenesem Raspbian Stretch Lite. Nato sledim [navodilom](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) za namestitev operacijskega sistema na microSd kartico, ki jo nato vstavim v Raspberry Pi.
- 
+ Da bom lahko uporabljal Raspberry Pi, moram najprej naložiti usterzen opreacijski sistem na Raspberry Pi. Ker za svoj projekt ne potrebujem grafičnega vmesnika, na Raspberry Pi namestim Raspbian Lite. To storim tako, da iz uradne strani Raspberry Pi\cite{RPi_raspbian} prenesem Raspbian Stretch Lite. Nato sledim navodilom za namestitev\cite{RPi_install} operacijskega sistema na microSd kartico, ki jo nato vstavim v Raspberry Pi.
+
 Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, moram pred zagonom omogočiti še SSH ter vnesti podatke, ki jih Raspberry Pi potrebuje za povezavo na WiFi dostopno točko. Da omogočim SSH, na boot particijo microSD katrice dodam datoteko ssh. Da pa se bo Raspberry Pi lahko povezal na WiFi dostopno točko, moram na boot particiji ustvariti datoteko wpa\_supplicant.conf, v katero vnesem naslednje:
 
 \begin{minted}[mathescape,
@@ -251,7 +323,7 @@ Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, mo
                gobble=0,
                frame=lines,
                framesep=2mm]{bash}
-  
+
 country=SI
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -273,7 +345,7 @@ Nato se iz terminala na svojem računalniku preko SSH povežem na Raspberry Pi:
                gobble=0,
                frame=lines,
                framesep=2mm]{python}
-  
+
 ssh pi@IP_RaspberryPi #uporabnik pi, privzeto geslo pa je raspberry
 \end{minted}
 
@@ -304,7 +376,7 @@ Preden namestim kakršnekoli nove pakete, je potrebno sistem posodobiti:
                gobble=0,
                frame=lines,
                framesep=2mm]{python}
-  
+
 sudo apt update && sudo apt upgrade -y
 \end{minted}
 
@@ -315,7 +387,7 @@ Ker bom program za upravljanje garažnih vrat napisal v Pythonu, le tega namesti
                gobble=0,
                frame=lines,
                framesep=2mm]{python}
-  
+
 sudo apt install python python-pip
 \end{minted}
 
@@ -327,7 +399,7 @@ Ker pa bom uporabil tudi LCD, moram namestiti še RPILCD knjižnico:
                gobble=0,
                frame=lines,
                framesep=2mm]{python}
-  
+
 sudo pip install RPLCD
 \end{minted}
 
@@ -346,7 +418,11 @@ Po priklopu, je treba paziti, da v programu ne pozabimo nastaviti pull-down upor
 Ker je bilo to prvič, da sem uporabljal ultrazvočni senzor razdalje na Raspberry Pi, sem si pomagal z vodičem na ModMyPi\cite{ModMyPi_us}.
 
 Senzor ima štiri pine: VCC, GND, Trig, Echo. VCC povežem na 5V. GND, povežem na GND pin, Trig na BCM pin 11, Echo pa najprej preko \SI{1}{\kohm} upora na BCM pin 20, nato pa še preko \SI{2}{\kohm} na GND.
-
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/smartGarage_Distance_bb.png}
+\caption{Priklop HC-SR04 unltrazvočnega senzorja razdalje}
+\end{figure}\\
 Da pridobim razdaljo, uporabim naslednjo metodo:
 \begin{minted}[mathescape,
                linenos,
@@ -354,7 +430,7 @@ Da pridobim razdaljo, uporabim naslednjo metodo:
                gobble=0,
                frame=lines,
                framesep=2mm]{python}
-def checkCar():  
+def checkCar():
     GPIO.output(GPIO_VARS_DICT['TRIG'], False)
     time.sleep(0.001)
 
@@ -373,7 +449,7 @@ def checkCar():
 
     return round(distance, 2)
 \end{minted}
-
+\newpage
 \subsection{DS18B20 temperaturni senzor}
 Ker je bilo to prvič, da sem v projektu uporabil DS18B20 senzor temperature, sem si pomagal z vodičem na PiMyLifeUp\cite{PiMyLifeUp_DS18B20}.
 
@@ -383,7 +459,7 @@ Sam priklop je povsem enostaven. Vse kar potrebujemo je DS18B20 senzor temperatu
 \includegraphics[width=0.5\textwidth]{images/DS18B20_diagram.png}
 \caption{Priklop DS18B20}
 \end{figure}
-\newpage
+
 \subsection{LCD zaslon}
 Tudi priklop LCD zaslona je bil zame nekaj novega. Zato sem si pomagal z vodičem na circuitbasics.com\cite{CB_LCD}.
 Za priklop potrebujem:
@@ -394,41 +470,77 @@ Za priklop potrebujem:
 LCD zaslon priklopim na Raspberry Pi kot je prikazano na spodnji sliki.
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.5\textwidth]{images/LCD_4bit.png}
+\includegraphics[width=0.3\textwidth]{images/LCD_4bit.png}
 \caption{Priklop LCD zaslona}
 \end{figure}
 \newpage
 \subsection{Tipki in LED diodi}
 Priklop tipk in LED diod je zelo enostaven. Tipki povežem preko 3.3V na poljuben GPIO pin, pri tem pazim le, da je pin nastavljen kot vhodni in da je omogočen notranji pull down upor.
 LED diodi pa priklopim preko \SI{270}{\ohm} uporov iz poljubnega GPIO pina na GND. GPIO pin mora biti nastavljen kot izhodni.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\textwidth]{images/smartGarage_LED_button_bb.png}
+\caption{Priklop vseh komponent}
+\end{figure}
+
+\subsection{Vse komponente}
+Ko sem priključil vsako komponento posebej in se prepričal o tem kako deluje, sem vse skupaj združil v en sistem.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/smartGarageComplete_bb.png}
+\caption{Priklop vseh komponent}
+\end{figure}\\
+Diagram se od dejanske izvedbe razlikuje le v tem da je tukaj uporabljen dvo-kanalni modul relejev, ker je bil le ta edini primeren za uporabo v diagramu. Ne glede na to, pa je priklopljen samo en kanal.
+
 \section{Programske rešitve}
+Celotna koda vseh programov, omenjenih v raziskovalni nalogi je v prilogi.
 \subsection{Premikanje garažnih vrat}
+Samo premikanje garažnih vrat je zelo enostavno. Vse kar mora program storiti je, da odpre garažna vrata, je preklop releja. Rele se tako preklopi iz odprtega stanja v zaprto, nato pa se čez pol sekund vrne v odprto stanje. Za to poskrbi spodnja metoda.
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
                gobble=0,
                frame=lines,
                framesep=2mm]{python}
-  
+
 def toggleGarage():
     GPIO.output(GPIO_VARS_DICT['RELAY'], 0)
     time.sleep(.5)
     GPIO.output(GPIO_VARS_DICT['RELAY'], 1)
 \end{minted}
 \subsection{Preveranje stanja garažnih vrat}
+Preverjanje stannja garažnih vrat poteka z uporabe dveh reed stikal. Eno je nameščeno na spodnjem delu vodila garažnih vrat, kjer se le ta nahajajo ko so zaprta. Drugo pa je nameščeno na zgornjem delu nosilca kjer se vrata nahajajo ko so odprta. Magnet, ki sproži stikali je nameščen neposredno na garažna vrata.
+
+Določanje ali so vrata odprta, zaprta ali priprta poteka s preverjanjem stanja stikal. Če je aktivno spodnje stikalo, to pomeni, da so garažna vrata zaprta. Če je aktivno zgornje stikalo, to pomeni, da so garažna vrata odprta. Če ni aktivno nobeno izmed stikal, so garažna vrata priprta.
 
 \subsection{Spremljanje temperature}
+Spremljanje temperature poteka z uporabo DS18B20 temperaturnega senzorja. Le ta je nameščen meter od tal na najmanj prepišnem delu garaže. Program začne spremljati temperaturo, ko se garažna vrata odprejo. Med spremljanjem temperature urtipa kontrolna LED dioda. Tako uporabnik ve, da program spremlja temperaturo v garaži. Če temperatura pade oziroma preseže nastavljeno mejo program samodejno zapre vrata in o tem obvesti uporabnike. V primeru da uporabni ne želi, da program samodejno zapre vrata v primeru neprimerne temperature, lahko spremljanje le te prekliče s pritiskom tipke.
 
-\subsubsection{Izpisovanje temperature na LCD}
+\subsection{Izpisovanje temperature na LCD}
+LCD, ki bo nameščen v ohišju na vidnem mestu v garaži, bo uporabljen za izpisovanje trenutega datuma, časa ter temperature.
 
+Za izpisovanje se uporablja poseben program, ki v neskončni zanki meri temperaturo ter jo skupaj s trenutnim datumem in časom izpisuje na LCD zaslon.
 
-\subsubsection{Samodejno zapiranje ob neprimerni temperaturi}
-
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{images/LCD_temp.jpg}
+\caption{Izpis na LCD}
+\end{figure}
 
 \subsection{Samodejno zapiranje glede na avto}
+Ultrazvočni senzor razdalje HC-SR04 se uporablja za preverjanje ali je avto v garaži ali ne. Če naprimer avta ni v garaži, nato pa se garaža odpre in vanjo pripelje avto, bo program po določenem času samodejno zaprl vrata in tem obvestil uporabnike preko potisnih sporočil. Enako se zgodi, če avto zapusti garažo. V primeru da uporabnik ne želi, da se ob prihodu ali odhodu avta iz garaže vrata samodejno zaprejo, lahko samodejno zapiranje prekliče s pritiskom tipke.
 
+Senzor je nameščen na stropu garaže. Razdalja (med senzorjem in avtom), ki določa kdaj senzor zazna da je v garaži avto se nastavi v konfiguracijski datoteki.
+
+
+\subsection{Samodejno zapiranje ob določeni uri}
+Ker se včasih zgodi, da zvečer pozabimo zapreti garažna vrata, se mi je zdelo smiselno nastavit samodejno zapiranje vrat ob določeni uri. Rešitev tega problema je relativno enostavna. Na Raspberry Pi-ju samo nastavim Cron opravilo, da se ob željeni uri zažene program za zapiranje vrat.
 
 \subsection{Če garažnih vrat ni možno zapreti}
+Med testiranjem programa za garažna vrata, sem kmalu odkril relativno pomembno napako. In sicer se je dogajalo, da je program želel vrata zapreti, le to pa zaradi npr. ovire pod vrati ni bilo mogoče. Ker program ni bil dobro napisan, je le ta v nedogled poskušal brez uspeha zapreti vrata.
+
+Težavo sem rešil tako, da sem napisal metodo v katero program vstopi, če se vrata po poskusu zapiranja ne zaprejo. Metoda nato še nekajkrat poskuša zapreti vrata. Če le to ni mogoče, vrata ostanejo priprta.
+
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -436,7 +548,7 @@ def toggleGarage():
                frame=lines,
                breaklines=true,
                framesep=2mm]{python}
-  
+
 def doorAjar():
     for attempts in range(0, TIMEOUTS_VARS_DICT['AJAR_CLOSE_ATTEMPTS']):
         toggleGarage()
@@ -446,12 +558,15 @@ def doorAjar():
             time.sleep(1)
         if checkDoor() == 'zaprta':
             break
-        elif checkDoor() == 'odprta':
-            closeDoor()
 \end{minted}
 
 \subsection{Konfiguracijska datoteka}
+Za lažje nastavljanje spremenljivk kot je naprimer termperatura pri kateri se garažna vrata zaprejo, sem se odločil uporabiti konifugacijsko datoteko.
+
+Ker do sedaj le te še nikoli nisem uporabljal mi je bila uradna Pythonova dokumentacija\cite{Py_configParser} v veliko pomoč.
+\newpage
 \subsubsection{Datoteka}
+Zgradba konfiguracijske datoteke je zelo preprosta. V oglatih oklepajih se nahaja ime odseka, pod tem pa sledijo imena spremenljivk katerih vrednost je določena z enačajem ki mu sledi vrednost.
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -459,19 +574,96 @@ def doorAjar():
                frame=lines,
                breaklines=true,
                framesep=2mm]{python}
-  
+
 [gpio]
 TRIG = 11
 ECHO = 20
 RELAY = 16
-OVERRIDE_CAR = 26
-OVERRIDE_TEMP = 12
-LED_MONITOR_CAR = 13
-LED_MONITOR_TEMP = 21
-REED_OPEN = 5
-REED_CLOSED = 6
 \end{minted}
+
 \subsubsection{Branje iz datoteke}
+Branje iz datoteke je bil na začetku kar precejšen izziv. Po nekaj različnih poskusih implementacije, sem se določil da bom vrednosti iz konfiguracijske datoteke shranjeval v slovar. Za branje vrednosti iz datoteke uporabljam spodnjo metodo.
+
+Le ta prejme del iz katerega mora brati, spremenljivke, ki jih je potrebo prebrati in slovar v katerega se bodo shranile vrednosti. Metoda nato odpre datoteko za branje, nato pa v zanki prebere vrednosti spremenljivk in jih shrani v slovar.
+
+\subsection{Potisna obvestila}
+Ker je potrebno uporabnike obveščati o spremebi stanja garažnih vrat, sem moral poiskati način kako le to storiti. Po nekaj raziskovanja sem se odličil, da uporabim soritev za pošiljanje potisnih obvestil Pushover\cite{Pushover}.
+
+Storitev je zelo enostavna za uporabo in se je do sedaj odlično obnesla. Edina slabost stortive je, da je plačljiva. Treba je namreč kupiti licenco za vsako napravo ki storitev uporablja. Cena licence pa je 4.99 \$.
+\subsection{Možne razširitve projekta}
+Čeprav sem z projektom do sedaj zelo zadovoljen, sem prepričan da je možnosti za izboljšave še veliko.
+\subsubsection{Sistem dnevniških datotek}
+Beleženje dogodkov programa je dobro že iz vidika odpravljanja težav. Trenutno je zelo težko določiti kje v programu se pojavlja napaka. Zato bi bilo zelo koristno, če bi v program dodal zapisovanje dnevniški datotek in pa možnost razhroščevanja programa (debug).
+
+Druga stvar, ki bi bila po mojem mnenju zelo korista, pa je beleženje kdo, kdaj in s katere naprave je bila garaža aktivirana. Iz tega bi lahko delal statistiko uporabe garažnih vrat, hkrati pi bi lahko zelo hitro ugotovil, če do garaže dostopa nekdo, ki le tega ne bi smel imeti.
+\subsubsection{Android aplikacija}
+Trenutno za upravljanje garaže preko telefona uporabljam kar Shell skripto, ki jo poženem z aplikacijo Termux. Zaradi boljše uporabniške izkušnje in pa uporabnosti bi bilo zato zelo dobro, če bi naredil še aplikacijo za Android, Aplikacija bi se lahko uporabljala za upravljanje garažnih vrat in spremljanje temperature. Lahko bi dodal tudi možnost, da uporabniki preko aplikacije nastavijo določene spremenljivke kot je na primer ura ob kateri se garaža samodejno zapre.
+\subsubsection{Brezžični moduli}
+Ko sem zadnjič raszmišljal kako bi lahko svoj projekt še dodatno izboljšal, sem prišel na idejo, da bi bili moduli samostojni. Tako bi na primer bil en modul rele, drugi bi bil LCD zaslon, tretji senzor temperature itd..
+To bi bilo verjetno izvedljivo če bi za vsak modul uporabil na primer NodeMcu\cite{NodeMcu}. Tako bi bil vsak modul zase povezan v WiFi omrežje, preko katerega pa bi komuniciral z centralnim računalnikom.
+
+\subsubsection{Odpiranje s prstnim odtisom ali številčnico}
+Kaj storiti v primeru, da želimo od zunaj odpreti garažo a pri sebi nimamo ne deljinca, ne pametnega telefona. To težavo bi lahko enostavno rešil tako, da bi se na zunanji strani vrat namestil ali čitalec prstnih odtisov ali številčnica. Tako bi lahko uporabniki odprli garažna vrata s prstnim odtisom ali z ustrezno kodo.
+
+\subsubsection{Spletna stran}
+Za spremljanje stanja garažnih vrat in upravljanja le teh bi bilo dobro imeti tudi spletno stran. Poleg tega bi se lahko slednja uporabila (če bi se prijavil ustrezen uporabink) za spremljanje dnevniških datotek in nastavljenje določenih parametrov programa.
+\newpage
+
+\section{Razprava}
+Moje hipoteze so bile:
+\begin{enumerate}
+    \item Garažna vrata bo možno upravljati preko telefona
+    \item Garažna vrata bo možno upravljati preko spletne strani
+    \item Raspberry Pi bo spremljal ali je avto v garaži ali ne in glede na to samodejno zapiral garažna vrata
+    \item Raspberry Pi bo spremljal temperaturo v garaži in jih samodejno zaprl v primeru prenizke ali previsoke temperature
+    \item Raspberry Pi bo samodejno zaprl garažna vrata, če ostanejo odprta po določeni uri
+    \item Raspberry Pi nas bo preko potisnih obvestil obveščal o spremembi stanja garažnih vrat
+    \item Raspberry Pi bo beležil kdo in kdaj je aktiviral garažna vrata
+    \item uporabnik bo imel možnost preklicati samodejno zapiranje vrat
+\end{enumerate}
+
+
+
+
+\begin{enumerate}
+  \item Prvo hipotezo lahko delno potrdim, saj je uporavljanje vrat preko telefona možno, vendar le, če so na telefonu nameščene ustrezne aplikacije (Termux ali PiRelay).
+  \item Drugo hipotezo sem ovrgel, saj mi spletne strani ni uspelo narediti.
+  \item Tretjo hipotezo lahko potrdim, saj se garažna vrata samodejno zaprejo, če avto pripelje v garažo ali jo zapusti.
+  \item Tudi četrto hipotezo lahko potrdim, saj se garaža ob neprimerni temperaturi samodejno zapre.
+  \item Peto hipotezo lahko potrdim, saj se garažna vrata ob določeni uri zaprejo samodejno.
+  \item Šesto hipotezo lahko potrdim, saj Raspberry Pi pošilja potisna obvestila preko soritve Pushover.
+  \item Sedmo hipotezo ovržem, saj Raspberry Pi ne beleži dnevnika uporabe garaže.
+  \item Osmo hipotezo lahko delno potrdim. Uporabnik ima možnost preklicati samodejno zapiranje vrat v primeru neustrezne temperature ali spremembe stanja avta. Ne more pa preklicati samodejnega zapiranja ob določeni uri.
+\end{enumerate}
+Izdelava raziskovalne naloge je zahtevala veliko truda in časa. Moral sem prebrati veliko dokumentacije, brskati po forumih, eksperimentirati. Malo več časa, denarja in še kakšen dodaten par rok, pa bi lahko svoj projekt še precej razširil.
+\newpage
+\section{Zaključek}
+Raspberry Pi je danes zelo pogosto uporabljen v najrazličnejših projektih. K temu pripomoreta tako zalo prilagodljiv operacijski sistem, kot tudi ogromen nabor senzorjev, ki jih je možno priključiti nanj.
+
+Verjamem da bomo v prihodnosti videli še veliko različnih in uporabnih projektov domačih mojstrov izdelanih s pomočjo Raspberry Pi.
+%%--------------------------------Beginning of Acronyms & Glossary--------------------------------%%
+\newpage
+\clearpage
+
+%%\printglossary[type=\acronymtype]
+
+%\printglossary[type=main]
+%%--------------------------------End of Acronyms & Glossary--------------------------------%%
+
+%%--------------------------------Beginning of Bibliography--------------------------------%%
+\begin{flushleft}
+\bibliographystyle{plain}
+\bibliography{sources.bib}
+\end{flushleft}
+%%--------------------------------End of Bibliography--------------------------------%%
+\newpage
+\section{Zahvale}
+Zahvaljujem se svojemu mentorju, profesorju Borotu Slemenšku za nasvete ter pomoč pri izdelavi raziskovalne naloge.
+
+Zahvala gre tudi mag. Andreji Tkalec, ki je lektorirala mojo raziskovalno nalogo.
+\newpage
+\section{Priloge}
+\subsection{garage.py - glavni program}
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -479,34 +671,463 @@ REED_CLOSED = 6
                frame=lines,
                breaklines=true,
                framesep=2mm]{python}
-  
+
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import RPi.GPIO as GPIO
+import time
+import argparse
+import os
+import time
+import glob
+from RPLCD.gpio import CharLCD
+from multiprocessing import Process
+from pushover import Client
+import ConfigParser
+import io
+import logging
+from logging.config import fileConfig
+
+#fileConfig('logging_config.ini')
+#logger = logging.getLogger()
+
+GPIO.setwarnings(False)
+
+homeFolder=os.environ['HOME'] #pridobim domačo mapo uporabnika, ki je pognal program
+logPath=homeFolder+'/.garage/logs' #nastavim mapo v katero se bo shranjevala dnevniška datoteka
+logFile=homeFolder+'/.garage/logs/toggleRelay.log'
+
+def checkLogFilePath(): #metoda, ki preveri ali obstajajo vse ptrebne mape in jih po potrebi ustvari
+    if(not os.path.exists(homeFolder+'/.garage')):
+        os.mkdir(homeFolder+'/.garage')
+    if(not os.path.exists(logPath)):
+        os.mkdir(logPath)
+
 def readConf(section, vars, val_dict):
     configParser = ConfigParser.RawConfigParser(allow_no_value=True)
     configParser.read(os.environ['HOME']+'/.garage/garage.conf')
     for value in vars:
         val_dict[value] = int(configParser.get(section, value))
+
+def lcd_write(line1, line2):
+    lcd.clear()
+    lcd.cursor_pos = (0, 0)
+    lcd.write_string(line1)
+    lcd.cursor_pos = (1, 0)
+    lcd.write_string(line2)
+
+def read_temp_raw():
+    f = open(device_file, 'r')
+    lines = f.readlines()
+    f.close()
+    return lines
+
+def read_temp():
+    lines = read_temp_raw()
+    while lines[0].strip()[-3:] != 'YES':
+        time.sleep(0.2)
+        lines = read_temp_raw()
+    equals_pos = lines[1].find('t=')
+    if equals_pos != -1:
+        temp_string = lines[1][equals_pos+2:]
+        temp_c = int(temp_string) / 1000.0 # TEMP_STRING IS THE SENSOR OUTPUT, MAKE SURE IT'S AN INTEGER TO DO THE MATH
+        temp_c = round(temp_c, 1) # ROUND THE RESULT TO 1 PLACE AFTER THE DECIMAL
+        return temp_c
+
+def blink(LED):
+    GPIO.output(LED, GPIO.HIGH)  # led on
+    time.sleep(.5)
+    GPIO.output(LED, GPIO.LOW) # led off
+    time.sleep(.5)
+
+def toggleGarage():
+    GPIO.output(GPIO_VARS_DICT['RELAY'], 0)
+    time.sleep(.5)
+    GPIO.output(GPIO_VARS_DICT['RELAY'], 1)
+
+def checkDoor():
+    if GPIO.input(GPIO_VARS_DICT['REED_OPEN']) == True:
+        return "odprta"
+    elif GPIO.input(GPIO_VARS_DICT['REED_CLOSED']) == True:
+        return "zaprta"
+    else:
+        return "priprta"
+
+def checkCar():
+    GPIO.output(GPIO_VARS_DICT['TRIG'], False)
+    time.sleep(0.001)
+
+    GPIO.output(GPIO_VARS_DICT['TRIG'], True)
+    time.sleep(0.00001)
+    GPIO.output(GPIO_VARS_DICT['TRIG'], False)
+
+    while GPIO.input(GPIO_VARS_DICT['ECHO'])==0:
+      pulse_start = time.time()
+
+    while GPIO.input(GPIO_VARS_DICT['ECHO'])==1:
+      pulse_end = time.time()
+
+    pulse_duration = pulse_end - pulse_start
+    distance = pulse_duration * 17150
+
+    return round(distance, 2)
+
+def monitorCar():
+    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_CAR'],GPIO.RISING,bouncetime=300)
+    distance = checkCar()
+    for x in range(0,TIMEOUTS_VARS_DICT['CAR_STATUS_TIMEOUT']):
+        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
+            break
+        elif checkDoor() == 'zaprta':
+            break
+        blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
+        if (distance >=25 and checkCar() <= 20) or (distance <=20 and checkCar() >= 25):
+            for i in range(0,5):
+                blink(GPIO_VARS_DICT['LED_MONITOR_CAR'])
+            if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_CAR']):
+                break
+            elif checkDoor() != 'odprta':
+                break
+            if distance >=25 and checkCar() <= 20:
+                toggleGarage()
+                while checkDoor() != "zaprta":
+                    time.sleep(5)
+                time.sleep(2)
+                break
+            elif distance <=20 and checkCar() >= 25:
+                toggleGarage()
+                pushover.send_message("Avto odpeljal! Zapiram garažo!", title="Garaža")
+                while checkDoor() != "zaprta":
+                    time.sleep(5)
+                    pushover.send_message("Avto odpeljal! Garaža zaprta!", title="Garaža")
+                time.sleep(2)
+                break
+
+def monitorTemp():
+    time.sleep(TIMEOUTS_VARS_DICT['BEGIN_TEMP_WATCH'])
+    GPIO.add_event_detect(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.RISING,bouncetime=300)
+    count = 0
+    while 1:
+        blink(GPIO_VARS_DICT['LED_MONITOR_TEMP'])
+        if GPIO.event_detected(GPIO_VARS_DICT['OVERRIDE_TEMP']):
+            break
+        elif checkDoor() == 'zaprta':
+            break
+        temp = read_temp()
+        if temp < TEMP_VARS_DICT['MIN_TEMP']:
+            toggleGarage()
+            pushover.send_message("Temperatura v garaži prenizka! Zapiram garažo!", title="Garaža prehladna!")
+            while checkDoor() != "zaprta":
+                time.sleep(1)
+            pushover.send_message("Garaža zaprta zaradi prenizke temperature!", title="Garaža zarta!")
+            time.sleep(2)
+            break;
+        elif temp > TEMP_VARS_DICT['MAX_TEMP']:
+            toggleGarage()
+            pushover.send_message("Temperatura v garaži previsoka! Zapiram garažo!", title="Garaža pretopla!")
+            while checkDoor() != "zaprta":
+                time.sleep(1)
+            pushover.send_message("Garaža zaprta zaradi previsoke temperature!", title="Garaža zarta!")
+            time.sleep(2)
+            break;
+        count += 1
+
+
+def arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--toggle", action="store_true", help="Trigger garage doors relay.")
+    parser.add_argument('-C', '--car-status', action="store_true", help="Check wether or not the car is in the garage.")
+    parser.add_argument('-S', '--door-status', action="store_true", help="Preveri v kaksnem stanju so vrata.")
+    args = parser.parse_args()
+
+    if args.toggle == True:
+        logging.info("Toggle garage activated.")
+        if checkDoor() == 'zaprta':
+            logging.info("Garage closed.")
+            toggleGarage()
+            logging.info("Opening garage...")
+            logging.info("Waiting for garage to open.")
+            for x in range(0,60):
+                if checkDoor() == 'odprta':
+                    logging.info("Garage opened.")
+                    logging.debug("Sending push notifiaction over Pushover...")
+                    pushover.send_message("Garaža odprta!", title="Garaža")
+                    logging.debug("Pushover notification send.")
+                    break;
+                elif x == 60:
+                    logging.warning("Couldn't open garage.")
+                    time.sleep(1)
+                time.sleep(1)
+            try:
+                logging.debug("Starting car starus monitoring...")
+                c = Process(target=monitorCar,args=())
+                c.start()
+                logging.debug("Car monitoring running.")
+                logging.debug("Starting temperature monitoring...")
+                t = Process(target=monitorTemp,args=())
+                t.start()
+                logging.debug("Temperature monitoring running.")
+                c.join()
+                t.join()
+                logging.debug("Waiting for doors to close...")
+                while checkDoor() != 'zaprta':
+                    time.sleep(1)
+                logging.info("Doors closed.")
+                logging.debug("Sending Pushover notification...")
+                pushover.send_message('Garaža zaprta!',title="Garaža")
+                logging.debug("Pushover notification sent.")
+            except:
+                print "Couldn't start thread"
+        elif checkDoor() == 'odprta':
+            logging.debug("Garage is open.")
+            cd = Process(target=closeDoor(),args=())
+            cd.start()
+            cd.join(60)
+        else:
+            doorAjar()
+
+    elif args.car_status == True:
+        if checkCar() < 15:
+            print "Avto je v garaži!"
+        else:
+            print "Avta ni v garaži!"
+    elif args.door_status == True:
+        lcd.clear()
+    else:
+        print 'nic'
+        destroy()
+
+def closeDoor():
+    toggleGarage()
+    pushover.send_message("Zapiram garažo!", title="Garaža")
+    for x in range(0, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
+        if checkDoor() == 'zaprta':
+            pushover.send_message("Garaža zaprta!", title="Garaža")
+            time.sleep(2)
+        time.sleep(1)
+
+def doorAjar():
+    for attempts in range(0, TIMEOUTS_VARS_DICT['AJAR_CLOSE_ATTEMPTS']):
+        toggleGarage()
+        for x in range(0, TIMEOUTS_VARS_DICT['AJAR_TIMEOUT']):
+            if checkDoor() != 'priprta':
+                break
+            time.sleep(1)
+        if checkDoor() == 'zaprta':
+            break
+        #elif checkDoor() == 'odprta':
+        #    closeDoor()
+
+def destroy():
+    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.LOW)   # led off
+    GPIO.output(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.LOW)   # led off
+    GPIO.cleanup()
+
+def setup():
+    #variables setup
+    global lcd,base_dir,device_folder,device_file
+    #read from config
+    logging.debug("Setting variables for reading from config file...")
+    GPIO_VARS = ['TRIG','ECHO','RELAY','OVERRIDE_CAR','OVERRIDE_TEMP','LED_MONITOR_CAR','LED_MONITOR_TEMP','REED_OPEN','REED_CLOSED']
+    TEMP_VARS = ['MAX_TEMP','MIN_TEMP']
+    TIMEOUTS_VARS = ['AJAR_TIMEOUT','CAR_STATUS_TIMEOUT','BEGIN_TEMP_WATCH','AJAR_CLOSE_ATTEMPTS']
+    LCD_VARS = ['cols','rows','pin_rs','pin_e','d4','d5','d6','d7']
+    global GPIO_VARS_DICT, TEMP_VARS_DICT, TIMEOUTS_VARS_DICT, LCD_VARS_DICT
+    TEMP_VARS_DICT = dict()
+    TIMEOUTS_VARS_DICT = dict()
+    GPIO_VARS_DICT = dict()
+    LCD_VARS_DICT = dict()
+    logging.debug("Variables for reading from config file set.")
+    logging.debug("Reading GPIO configuration..."")
+    readConf('gpio',GPIO_VARS,GPIO_VARS_DICT)
+    logging.debug("Finished reading GPIO configuration")
+    logging.debug("Reading temperature configuration..."")
+    readConf('temperature',TEMP_VARS,TEMP_VARS_DICT)
+    logging.debug("Finished reading temperature configuration")
+    logging.debug("Reading timeouts configuration..."")
+    readConf('timeouts',TIMEOUTS_VARS,TIMEOUTS_VARS_DICT)
+    logging.debug("Finished reading timeouts configuration")
+    logging.debug("Reading LCD configuration..."")
+    readConf('lcd',LCD_VARS,LCD_VARS_DICT)
+    logging.debug("Finished reading LCD configuration")
+    #GPIO setup
+    logging.debug("Setting up GPIO...")
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(GPIO_VARS_DICT['TRIG'],GPIO.OUT)
+    GPIO.setup(GPIO_VARS_DICT['ECHO'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['OVERRIDE_CAR'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['LED_MONITOR_CAR'], GPIO.OUT)   # Set LedPin's mode is output
+    GPIO.setup(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.OUT)   # Set LedPin's mode is output
+    GPIO.setup(GPIO_VARS_DICT['RELAY'], GPIO.OUT)
+    GPIO.setup(GPIO_VARS_DICT['REED_OPEN'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['REED_CLOSED'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setwarnings(False)
+    logging.debug("GPIO setup finished.")
+    #LCD setup
+    logging.debug("Setting up LCD...")
+    lcd = CharLCD(cols=LCD_VARS_DICT['cols'], rows=LCD_VARS_DICT['rows'], pin_rs=LCD_VARS_DICT['pin_rs'], pin_e=LCD_VARS_DICT['pin_e'], pins_data=[LCD_VARS_DICT['d4'],LCD_VARS_DICT['d5'],LCD_VARS_DICT['d6'],LCD_VARS_DICT['d7']],numbering_mode=GPIO.BCM)
+    logging.debug("LCD setup finished.")
+    #temp sensor setup
+    logging.debug("Setting up temperature sensor...")
+    os.system('modprobe w1-gpio')
+    os.system('modprobe w1-therm')
+    base_dir = '/sys/bus/w1/devices/'
+    device_folder = glob.glob(base_dir + '28*')[0]
+    device_file = device_folder + '/w1_slave'
+    logging.debug("Temperature sensor setup finished.")
+    #pushover setup
+    logging.debug("Setting up Pushover...")
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
+    global pushover
+    pushover = Client(configParser.get('pushover', 'user_key'), api_token=configParser.get('pushover', 'api_token'))
+    logging.debug("Pushover sertup finished.")
+
+if __name__=="__main__":
+    try:
+        logging.debug("Checking if /tmp/LCD_temp.pid exists...")
+        if os.path.isfile("/tmp/LCD_temp.pid"):
+            logging.debug("/tmp/LCD_temp.pid exists.")
+            logging.debug("Killing LCD_temperature.py...")
+            os.system("kill $(cat /tmp/LCD_temp.pid)")
+            logging.debug("LCD_temperature.py killed.")
+            logging.debug("Removing /tmp/LCD_temp.pid...")
+            os.unlink("/tmp/LCD_temp.pid")
+            logging.debug("/tmp/LCD_temp.pid removed.")
+        #m = Process(target=mainScreen,args=())
+        setup()
+        lcd.clear()
+        #m.start()
+        logging.debug("Starting temperature_LCD.py...")
+        os.system('python temperature_LCD.py &')
+        logging.debug("LCD_temperature running.")
+        arguments()
+        #m.join()
+    except KeyboardInterrupt:
+        destroy()
+    finally:
+        destroy()
+        if os.path.isfile("/tmp/LCD_temp.pid"):
+            os.system("kill $(cat /tmp/LCD_temp.pid)")
+            os.unlink("/tmp/LCD_temp.pid")
+        os.system('python temperature_LCD.py &')
 \end{minted}
-%%--------------------------------End of Section 1 aka Intro--------------------------------%%
 \newpage
-\section{Zaključek}
-%%--------------------------------Beginning of Acronyms & Glossary--------------------------------%%
-\newpage
-\clearpage
- 
-\printglossary[type=\acronymtype]
- 
-\printglossary[type=main]
-%%--------------------------------End of Acronyms & Glossary--------------------------------%%
+\subsection{temperature\_LCD.py - izpisovanje na LCD}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               breaklines=true,
+               framesep=2mm]{python}
 
-\newpage
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from datetime import datetime
+import ConfigParser
+from RPLCD.gpio import CharLCD
+import RPi.GPIO as GPIO
+import argparse
+import os
+import time
+import glob
+import sys
 
-%%--------------------------------Beginning of Bibliography--------------------------------%%
-\begin{flushleft}
+GPIO.setwarnings(False)
 
-\bibliographystyle{plain}
-\bibliography{sources.bib}
-\end{flushleft}
-%%--------------------------------End of Bibliography--------------------------------%%
+os.system('modprobe w1-gpio')
+os.system('modprobe w1-therm')
 
+base_dir = '/sys/bus/w1/devices/'
+device_folder = glob.glob(base_dir + '28*')[0]
+device_file = device_folder + '/w1_slave'
+
+def readConf(section, vars, val_dict):
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
+    for value in vars:
+        val_dict[value] = int(configParser.get(section, value))
+
+def read_temp_raw():
+    f = open(device_file, 'r')
+    lines = f.readlines()
+    f.close()
+    return lines
+
+def read_temp():
+    lines = read_temp_raw()
+    while lines[0].strip()[-3:] != 'YES':
+        time.sleep(0.2)
+        lines = read_temp_raw()
+    equals_pos = lines[1].find('t=')
+    if equals_pos != -1:
+        temp_string = lines[1][equals_pos+2:]
+        temp_c = int(temp_string) / 1000.0 # TEMP_STRING IS THE SENSOR OUTPUT, MAKE SURE IT'S AN INTEGER TO DO THE MATH
+        temp_c = round(temp_c, 1) # ROUND THE RESULT TO 1 PLACE AFTER THE DECIMAL
+        return temp_c
+
+def lcd_write(line1, line2):
+    lcd.cursor_pos = (0, 0)
+    lcd.write_string(line1)
+    lcd.cursor_pos = (1, 0)
+    lcd.write_string(line2)
+
+def init():
+    #variables setup
+    global lcd,base_dir,device_folder,device_file
+    #read from config
+    GPIO_VARS = ['TRIG','ECHO','RELAY','OVERRIDE_CAR','OVERRIDE_TEMP','LED_MONITOR_CAR','LED_MONITOR_TEMP','REED_OPEN','REED_CLOSED']
+    TEMP_VARS = ['MAX_TEMP','MIN_TEMP']
+    TIMEOUTS_VARS = ['AJAR_TIMEOUT','CAR_STATUS_TIMEOUT','BEGIN_TEMP_WATCH','AJAR_CLOSE_ATTEMPTS']
+    LCD_VARS = ['cols','rows','pin_rs','pin_e','d4','d5','d6','d7']
+    global GPIO_VARS_DICT, TEMP_VARS_DICT, TIMEOUTS_VARS_DICT, LCD_VARS_DICT
+    TEMP_VARS_DICT = dict()
+    TIMEOUTS_VARS_DICT = dict()
+    GPIO_VARS_DICT = dict()
+    LCD_VARS_DICT = dict()
+    readConf('gpio',GPIO_VARS,GPIO_VARS_DICT)
+    readConf('temperature',TEMP_VARS,TEMP_VARS_DICT)
+    readConf('timeouts',TIMEOUTS_VARS,TIMEOUTS_VARS_DICT)
+    readConf('lcd',LCD_VARS,LCD_VARS_DICT)
+    #GPIO setup
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(GPIO_VARS_DICT['OVERRIDE_TEMP'],GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(GPIO_VARS_DICT['LED_MONITOR_TEMP'], GPIO.OUT)   # Set LedPin's mode is output
+    #LCD setup
+    lcd = CharLCD(cols=LCD_VARS_DICT['cols'], rows=LCD_VARS_DICT['rows'], pin_rs=LCD_VARS_DICT['pin_rs'], pin_e=LCD_VARS_DICT['pin_e'], pins_data=[LCD_VARS_DICT['d4'],LCD_VARS_DICT['d5'],LCD_VARS_DICT['d6'],LCD_VARS_DICT['d7']],numbering_mode=GPIO.BCM)
+    #temp sensor setup
+    os.system('modprobe w1-gpio')
+    os.system('modprobe w1-therm')
+    base_dir = '/sys/bus/w1/devices/'
+    device_folder = glob.glob(base_dir + '28*')[0]
+    device_file = device_folder + '/w1_slave'
+    #pushover setup
+    configParser = ConfigParser.RawConfigParser(allow_no_value=True)
+    configParser.read(os.environ['HOME']+'/.garage/garage.conf')
+
+def destroy():
+    GPIO.cleanup()
+
+if __name__=="__main__":
+    pid = str(os.getpid())
+    pidfile = "/tmp/LCD_temp.pid"
+
+    if os.path.isfile(pidfile):
+        print "%s already exists, exiting" % pidfile
+        sys.exit()
+    file(pidfile, 'w').write(pid)
+    try:
+        init()
+        lcd.clear()
+        while True:
+        	lcd_write(datetime.now().strftime("%d.%m.%y  %H:%M"), "Temp: " + str(read_temp())+unichr(223)+"C")
+        	time.sleep(1)
+    except:
+        os.unlink(pidfile)
+        destroy()
+\end{minted}
 \end{document}
 %%--------------------------------End of document--------------------------------%%

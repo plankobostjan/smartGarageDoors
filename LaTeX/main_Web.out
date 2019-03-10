@@ -1,0 +1,43 @@
+\BOOKMARK [1][-]{section.1}{Uvod}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Opis\040problema}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{Hipoteze}{section.1}% 3
+\BOOKMARK [1][-]{section.2}{Raziskovalne\040metode}{}% 4
+\BOOKMARK [1][-]{section.3}{Izbira\040komponent}{}% 5
+\BOOKMARK [1][-]{section.4}{Priprava\040Raspberry\040Pi-ja}{}% 6
+\BOOKMARK [1][-]{section.5}{Priključitev komponent}{}% 7
+\BOOKMARK [2][-]{subsection.5.1}{Rele}{section.5}% 8
+\BOOKMARK [2][-]{subsection.5.2}{Reed\040stikali}{section.5}% 9
+\BOOKMARK [2][-]{subsection.5.3}{Ultrazvočni senzor razdalje HC-SR04}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.4}{DS18B20\040temperaturni\040senzor}{section.5}% 11
+\BOOKMARK [2][-]{subsection.5.5}{LCD\040zaslon}{section.5}% 12
+\BOOKMARK [2][-]{subsection.5.6}{Tipki\040in\040LED\040diodi}{section.5}% 13
+\BOOKMARK [2][-]{subsection.5.7}{Vse\040komponente}{section.5}% 14
+\BOOKMARK [1][-]{section.6}{Programske rešitve}{}% 15
+\BOOKMARK [2][-]{subsection.6.1}{Premikanje garažnih vrat}{section.6}% 16
+\BOOKMARK [2][-]{subsection.6.2}{Preveranje stanja garažnih vrat}{section.6}% 17
+\BOOKMARK [2][-]{subsection.6.3}{Spremljanje\040temperature}{section.6}% 18
+\BOOKMARK [2][-]{subsection.6.4}{Izpisovanje\040temperature\040na\040LCD}{section.6}% 19
+\BOOKMARK [2][-]{subsection.6.5}{Samodejno\040zapiranje\040glede\040na\040avto}{section.6}% 20
+\BOOKMARK [2][-]{subsection.6.6}{Če garažnih vrat ni možno zapreti}{section.6}% 21
+\BOOKMARK [2][-]{subsection.6.7}{Konfiguracijska\040datoteka}{section.6}% 22
+\BOOKMARK [3][-]{subsubsection.6.7.1}{Datoteka}{subsection.6.7}% 23
+\BOOKMARK [3][-]{subsubsection.6.7.2}{Branje\040iz\040datoteke}{subsection.6.7}% 24
+\BOOKMARK [2][-]{subsection.6.8}{Potisna\040obvestila}{section.6}% 25
+\BOOKMARK [2][-]{subsection.6.9}{Možne razširitve projekta}{section.6}% 26
+\BOOKMARK [3][-]{subsubsection.6.9.1}{Sistem dnevniških datotek}{subsection.6.9}% 27
+\BOOKMARK [3][-]{subsubsection.6.9.2}{Android\040aplikacija}{subsection.6.9}% 28
+\BOOKMARK [3][-]{subsubsection.6.9.3}{Brezžični moduli}{subsection.6.9}% 29
+\BOOKMARK [3][-]{subsubsection.6.9.4}{Odpiranje s prstnim odtisom ali številčnico}{subsection.6.9}% 30
+\BOOKMARK [3][-]{subsubsection.6.9.5}{Spletna\040stran}{subsection.6.9}% 31
+\BOOKMARK [1][-]{section.7}{Razprava}{}% 32
+\BOOKMARK [2][-]{subsection.7.1}{Težave med delom}{section.7}% 33
+\BOOKMARK [3][-]{subsubsection.7.1.1}{Rele\040predolgo\040ostane\040zaprt}{subsection.7.1}% 34
+\BOOKMARK [3][-]{subsubsection.7.1.2}{Multithreading}{subsection.7.1}% 35
+\BOOKMARK [1][-]{section.8}{Zaključek}{}% 36
+\BOOKMARK [1][-]{section.8}{Literatura}{}% 37
+\BOOKMARK [1][-]{section.9}{Zahvale}{}% 38
+\BOOKMARK [1][-]{section.10}{Priloge}{}% 39
+\BOOKMARK [2][-]{subsection.10.1}{Izjava}{section.10}% 40
+\BOOKMARK [2][-]{subsection.10.2}{garage.py\040-\040glavni\040program}{section.10}% 41
+\BOOKMARK [2][-]{subsection.10.3}{temperature_LCD.py\040-\040izpisovanje\040na\040LCD}{section.10}% 42
+\BOOKMARK [2][-]{subsection.10.4}{checkRelay.py}{section.10}% 43

@@ -1,0 +1,41 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+               \PYG{c+c1}{\PYGZsh{}!/usr/bin/python}
+
+               \PYG{c+c1}{\PYGZsh{}Program namenjen preklopu releja iz zaprtega v odprto stanje, ce je le ta predolgo zaprt}
+               \PYG{c+c1}{\PYGZsh{}Uporabljen kot resitev problema \PYGZsh{}1 (glej BUGS.md)}
+
+               \PYG{k+kn}{import} \PYG{n+nn}{RPi.GPIO} \PYG{k+kn}{as} \PYG{n+nn}{GPIO} \PYG{c+c1}{\PYGZsh{}import the GPIO library}
+               \PYG{k+kn}{import} \PYG{n+nn}{time}
+               \PYG{k+kn}{import} \PYG{n+nn}{datetime}
+               \PYG{k+kn}{from} \PYG{n+nn}{datetime} \PYG{k+kn}{import} \PYG{n}{datetime}
+               \PYG{k+kn}{import} \PYG{n+nn}{os}
+               \PYG{k+kn}{import} \PYG{n+nn}{logging}
+               \PYG{n}{logging}\PYG{o}{.}\PYG{n}{basicConfig}\PYG{p}{(}\PYG{n}{filename}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}logs/checkRelay.log\PYGZsq{}}\PYG{p}{)}
+
+               \PYG{n}{homeFolder}\PYG{o}{=}\PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}HOME\PYGZsq{}}\PYG{p}{]}
+               \PYG{n}{path}\PYG{o}{=}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/logs\PYGZsq{}}
+
+               \PYG{k}{def} \PYG{n+nf}{checkLogFilePath}\PYG{p}{():}
+                   \PYG{k}{if}\PYG{p}{(}\PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage\PYGZsq{}}\PYG{p}{)):}
+                       \PYG{n}{os}\PYG{o}{.}\PYG{n}{mkdir}\PYG{p}{(}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage\PYGZsq{}}\PYG{p}{)}
+                   \PYG{k}{if}\PYG{p}{(}\PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{path}\PYG{p}{)):}
+                       \PYG{n}{os}\PYG{o}{.}\PYG{n}{mkdir}\PYG{p}{(}\PYG{n}{path}\PYG{p}{)}
+
+               \PYG{n}{logger}\PYG{o}{=}\PYG{n}{logging}\PYG{o}{.}\PYG{n}{getLogger}\PYG{p}{(}\PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}}\PYG{p}{)}
+
+               \PYG{n}{checkLogFilePath}\PYG{p}{()}
+
+               \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setmode}\PYG{p}{(}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{BOARD}\PYG{p}{)}
+               \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{OUT}\PYG{p}{)}
+               \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{HIGH}\PYG{p}{)}
+
+               \PYG{k}{while} \PYG{n+nb+bp}{True}\PYG{p}{:}
+                   \PYG{k}{if} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb+bp}{False}\PYG{p}{:}
+                       \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{1.5}\PYG{p}{)}
+                       \PYG{k}{if} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{)} \PYG{o}{==} \PYG{n+nb+bp}{False}\PYG{p}{:}
+                           \PYG{n}{logger}\PYG{o}{.}\PYG{n}{warning}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Relay closed for too long.\PYGZsq{}}\PYG{p}{)}
+                           \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{,} \PYG{o+ow}{not} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{l+m+mi}{12}\PYG{p}{))}
+                           \PYG{n}{logger}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Relay opened automatically.\PYGZsq{}}\PYG{p}{)}
+                   \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{o}{.}\PYG{l+m+mi}{5}\PYG{p}{)}
+               \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{cleanup}\PYG{p}{()}
+\end{Verbatim}

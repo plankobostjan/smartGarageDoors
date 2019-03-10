@@ -1,0 +1,343 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{c+ch}{\PYGZsh{}!/usr/bin/python}
+\PYG{c+c1}{\PYGZsh{} \PYGZhy{}*\PYGZhy{} coding: utf\PYGZhy{}8 \PYGZhy{}*\PYGZhy{}}
+
+\PYG{k+kn}{import} \PYG{n+nn}{RPi.GPIO} \PYG{k+kn}{as} \PYG{n+nn}{GPIO}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+\PYG{k+kn}{import} \PYG{n+nn}{argparse}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+\PYG{k+kn}{import} \PYG{n+nn}{glob}
+\PYG{k+kn}{from} \PYG{n+nn}{RPLCD.gpio} \PYG{k+kn}{import} \PYG{n}{CharLCD}
+\PYG{k+kn}{from} \PYG{n+nn}{multiprocessing} \PYG{k+kn}{import} \PYG{n}{Process}
+\PYG{k+kn}{from} \PYG{n+nn}{pushover} \PYG{k+kn}{import} \PYG{n}{Client}
+\PYG{k+kn}{import} \PYG{n+nn}{ConfigParser}
+\PYG{k+kn}{import} \PYG{n+nn}{io}
+\PYG{k+kn}{import} \PYG{n+nn}{logging}
+\PYG{k+kn}{from} \PYG{n+nn}{logging.config} \PYG{k+kn}{import} \PYG{n}{fileConfig}
+
+\PYG{c+c1}{\PYGZsh{}fileConfig(\PYGZsq{}logging\PYGZus{}config.ini\PYGZsq{})}
+\PYG{c+c1}{\PYGZsh{}logger = logging.getLogger()}
+
+\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setwarnings}\PYG{p}{(}\PYG{n+nb+bp}{False}\PYG{p}{)}
+
+\PYG{n}{homeFolder}\PYG{o}{=}\PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}HOME\PYGZsq{}}\PYG{p}{]} \PYG{c+c1}{\PYGZsh{}pridobim domačo mapo uporabnika, ki je pognal program}
+\PYG{n}{logPath}\PYG{o}{=}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/logs\PYGZsq{}} \PYG{c+c1}{\PYGZsh{}nastavim mapo v katero se bo shranjevala dnevniška datoteka}
+\PYG{n}{logFile}\PYG{o}{=}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/logs/toggleRelay.log\PYGZsq{}}
+
+\PYG{k}{def} \PYG{n+nf}{checkLogFilePath}\PYG{p}{():} \PYG{c+c1}{\PYGZsh{}metoda, ki preveri ali obstajajo vse ptrebne mape in jih po potrebi ustvari}
+    \PYG{k}{if}\PYG{p}{(}\PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage\PYGZsq{}}\PYG{p}{)):}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{mkdir}\PYG{p}{(}\PYG{n}{homeFolder}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{if}\PYG{p}{(}\PYG{o+ow}{not} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{exists}\PYG{p}{(}\PYG{n}{logPath}\PYG{p}{)):}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{mkdir}\PYG{p}{(}\PYG{n}{logPath}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{readConf}\PYG{p}{(}\PYG{n}{section}\PYG{p}{,} \PYG{n+nb}{vars}\PYG{p}{,} \PYG{n}{val\PYGZus{}dict}\PYG{p}{):}
+    \PYG{n}{configParser} \PYG{o}{=} \PYG{n}{ConfigParser}\PYG{o}{.}\PYG{n}{RawConfigParser}\PYG{p}{(}\PYG{n}{allow\PYGZus{}no\PYGZus{}value}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+    \PYG{n}{configParser}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}HOME\PYGZsq{}}\PYG{p}{]}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/garage.conf\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{value} \PYG{o+ow}{in} \PYG{n+nb}{vars}\PYG{p}{:}
+        \PYG{n}{val\PYGZus{}dict}\PYG{p}{[}\PYG{n}{value}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{configParser}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n}{section}\PYG{p}{,} \PYG{n}{value}\PYG{p}{))}
+
+\PYG{k}{def} \PYG{n+nf}{lcd\PYGZus{}write}\PYG{p}{(}\PYG{n}{line1}\PYG{p}{,} \PYG{n}{line2}\PYG{p}{):}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{clear}\PYG{p}{()}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{cursor\PYGZus{}pos} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{write\PYGZus{}string}\PYG{p}{(}\PYG{n}{line1}\PYG{p}{)}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{cursor\PYGZus{}pos} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{write\PYGZus{}string}\PYG{p}{(}\PYG{n}{line2}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{read\PYGZus{}temp\PYGZus{}raw}\PYG{p}{():}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{device\PYGZus{}file}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}r\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{lines} \PYG{o}{=} \PYG{n}{f}\PYG{o}{.}\PYG{n}{readlines}\PYG{p}{()}
+    \PYG{n}{f}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+    \PYG{k}{return} \PYG{n}{lines}
+
+\PYG{k}{def} \PYG{n+nf}{read\PYGZus{}temp}\PYG{p}{():}
+    \PYG{n}{lines} \PYG{o}{=} \PYG{n}{read\PYGZus{}temp\PYGZus{}raw}\PYG{p}{()}
+    \PYG{k}{while} \PYG{n}{lines}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{3}\PYG{p}{:]} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}YES\PYGZsq{}}\PYG{p}{:}
+        \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.2}\PYG{p}{)}
+        \PYG{n}{lines} \PYG{o}{=} \PYG{n}{read\PYGZus{}temp\PYGZus{}raw}\PYG{p}{()}
+    \PYG{n}{equals\PYGZus{}pos} \PYG{o}{=} \PYG{n}{lines}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}t=\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{if} \PYG{n}{equals\PYGZus{}pos} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+        \PYG{n}{temp\PYGZus{}string} \PYG{o}{=} \PYG{n}{lines}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{][}\PYG{n}{equals\PYGZus{}pos}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{:]}
+        \PYG{n}{temp\PYGZus{}c} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{temp\PYGZus{}string}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{1000.0} \PYG{c+c1}{\PYGZsh{} TEMP\PYGZus{}STRING IS THE SENSOR OUTPUT, MAKE SURE IT\PYGZsq{}S AN INTEGER TO DO THE MATH}
+        \PYG{n}{temp\PYGZus{}c} \PYG{o}{=} \PYG{n+nb}{round}\PYG{p}{(}\PYG{n}{temp\PYGZus{}c}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} ROUND THE RESULT TO 1 PLACE AFTER THE DECIMAL}
+        \PYG{k}{return} \PYG{n}{temp\PYGZus{}c}
+
+\PYG{k}{def} \PYG{n+nf}{blink}\PYG{p}{(}\PYG{n}{LED}\PYG{p}{):}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{LED}\PYG{p}{,} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{HIGH}\PYG{p}{)}  \PYG{c+c1}{\PYGZsh{} led on}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{o}{.}\PYG{l+m+mi}{5}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{LED}\PYG{p}{,} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{LOW}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} led off}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{o}{.}\PYG{l+m+mi}{5}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{toggleGarage}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{o}{.}\PYG{l+m+mi}{5}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{checkDoor}\PYG{p}{():}
+    \PYG{k}{if} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}OPEN\PYGZsq{}}\PYG{p}{])} \PYG{o}{==} \PYG{n+nb+bp}{True}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+s+s2}{\PYGZdq{}odprta\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}CLOSED\PYGZsq{}}\PYG{p}{])} \PYG{o}{==} \PYG{n+nb+bp}{True}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+s+s2}{\PYGZdq{}zaprta\PYGZdq{}}
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{k}{return} \PYG{l+s+s2}{\PYGZdq{}priprta\PYGZdq{}}
+
+\PYG{k}{def} \PYG{n+nf}{checkCar}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],} \PYG{n+nb+bp}{False}\PYG{p}{)}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.001}\PYG{p}{)}
+
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],} \PYG{n+nb+bp}{True}\PYG{p}{)}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.00001}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],} \PYG{n+nb+bp}{False}\PYG{p}{)}
+
+    \PYG{k}{while} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{])}\PYG{o}{==}\PYG{l+m+mi}{0}\PYG{p}{:}
+      \PYG{n}{pulse\PYGZus{}start} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+
+    \PYG{k}{while} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{])}\PYG{o}{==}\PYG{l+m+mi}{1}\PYG{p}{:}
+      \PYG{n}{pulse\PYGZus{}end} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+
+    \PYG{n}{pulse\PYGZus{}duration} \PYG{o}{=} \PYG{n}{pulse\PYGZus{}end} \PYG{o}{\PYGZhy{}} \PYG{n}{pulse\PYGZus{}start}
+    \PYG{n}{distance} \PYG{o}{=} \PYG{n}{pulse\PYGZus{}duration} \PYG{o}{*} \PYG{l+m+mi}{17150}
+
+    \PYG{k}{return} \PYG{n+nb}{round}\PYG{p}{(}\PYG{n}{distance}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{monitorCar}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{add\PYGZus{}event\PYGZus{}detect}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}CAR\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{RISING}\PYG{p}{,}\PYG{n}{bouncetime}\PYG{o}{=}\PYG{l+m+mi}{300}\PYG{p}{)}
+    \PYG{n}{distance} \PYG{o}{=} \PYG{n}{checkCar}\PYG{p}{()}
+    \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}CAR\PYGZus{}STATUS\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{]):}
+        \PYG{k}{if} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{event\PYGZus{}detected}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}CAR\PYGZsq{}}\PYG{p}{]):}
+            \PYG{k}{break}
+        \PYG{k}{elif} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{k}{break}
+        \PYG{n}{blink}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}CAR\PYGZsq{}}\PYG{p}{])}
+        \PYG{k}{if} \PYG{p}{(}\PYG{n}{distance} \PYG{o}{\PYGZgt{}=}\PYG{l+m+mi}{25} \PYG{o+ow}{and} \PYG{n}{checkCar}\PYG{p}{()} \PYG{o}{\PYGZlt{}=} \PYG{l+m+mi}{20}\PYG{p}{)} \PYG{o+ow}{or} \PYG{p}{(}\PYG{n}{distance} \PYG{o}{\PYGZlt{}=}\PYG{l+m+mi}{20} \PYG{o+ow}{and} \PYG{n}{checkCar}\PYG{p}{()} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{25}\PYG{p}{):}
+            \PYG{k}{for} \PYG{n}{i} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{):}
+                \PYG{n}{blink}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}CAR\PYGZsq{}}\PYG{p}{])}
+            \PYG{k}{if} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{event\PYGZus{}detected}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}CAR\PYGZsq{}}\PYG{p}{]):}
+                \PYG{k}{break}
+            \PYG{k}{elif} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}odprta\PYGZsq{}}\PYG{p}{:}
+                \PYG{k}{break}
+            \PYG{k}{if} \PYG{n}{distance} \PYG{o}{\PYGZgt{}=}\PYG{l+m+mi}{25} \PYG{o+ow}{and} \PYG{n}{checkCar}\PYG{p}{()} \PYG{o}{\PYGZlt{}=} \PYG{l+m+mi}{20}\PYG{p}{:}
+                \PYG{n}{toggleGarage}\PYG{p}{()}
+                \PYG{k}{while} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s2}{\PYGZdq{}zaprta\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{5}\PYG{p}{)}
+                \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{)}
+                \PYG{k}{break}
+            \PYG{k}{elif} \PYG{n}{distance} \PYG{o}{\PYGZlt{}=}\PYG{l+m+mi}{20} \PYG{o+ow}{and} \PYG{n}{checkCar}\PYG{p}{()} \PYG{o}{\PYGZgt{}=} \PYG{l+m+mi}{25}\PYG{p}{:}
+                \PYG{n}{toggleGarage}\PYG{p}{()}
+                \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Avto odpeljal! Zapiram garažo!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{while} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s2}{\PYGZdq{}zaprta\PYGZdq{}}\PYG{p}{:}
+                    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{5}\PYG{p}{)}
+                    \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Avto odpeljal! Garaža zaprta!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{)}
+                \PYG{k}{break}
+
+\PYG{k}{def} \PYG{n+nf}{monitorTemp}\PYG{p}{():}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}BEGIN\PYGZus{}TEMP\PYGZus{}WATCH\PYGZsq{}}\PYG{p}{])}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{add\PYGZus{}event\PYGZus{}detect}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{RISING}\PYG{p}{,}\PYG{n}{bouncetime}\PYG{o}{=}\PYG{l+m+mi}{300}\PYG{p}{)}
+    \PYG{n}{count} \PYG{o}{=} \PYG{l+m+mi}{0}
+    \PYG{k}{while} \PYG{l+m+mi}{1}\PYG{p}{:}
+        \PYG{n}{blink}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{])}
+        \PYG{k}{if} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{event\PYGZus{}detected}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{]):}
+            \PYG{k}{break}
+        \PYG{k}{elif} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{k}{break}
+        \PYG{n}{temp} \PYG{o}{=} \PYG{n}{read\PYGZus{}temp}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{temp} \PYG{o}{\PYGZlt{}} \PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}MIN\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{]:}
+            \PYG{n}{toggleGarage}\PYG{p}{()}
+            \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Temperatura v garaži prenizka! Zapiram garažo!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža prehladna!\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{while} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s2}{\PYGZdq{}zaprta\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+            \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garaža zaprta zaradi prenizke temperature!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža zarta!\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{)}
+            \PYG{k}{break}\PYG{p}{;}
+        \PYG{k}{elif} \PYG{n}{temp} \PYG{o}{\PYGZgt{}} \PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}MAX\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{]:}
+            \PYG{n}{toggleGarage}\PYG{p}{()}
+            \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Temperatura v garaži previsoka! Zapiram garažo!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža pretopla!\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{while} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s2}{\PYGZdq{}zaprta\PYGZdq{}}\PYG{p}{:}
+                \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+            \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garaža zaprta zaradi previsoke temperature!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža zarta!\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{)}
+            \PYG{k}{break}\PYG{p}{;}
+        \PYG{n}{count} \PYG{o}{+=} \PYG{l+m+mi}{1}
+
+
+\PYG{k}{def} \PYG{n+nf}{arguments}\PYG{p}{():}
+    \PYG{n}{parser} \PYG{o}{=} \PYG{n}{argparse}\PYG{o}{.}\PYG{n}{ArgumentParser}\PYG{p}{()}
+    \PYG{n}{parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}t\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}\PYGZhy{}\PYGZhy{}toggle\PYGZdq{}}\PYG{p}{,} \PYG{n}{action}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}store\PYGZus{}true\PYGZdq{}}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Trigger garage doors relay.\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}C\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}car\PYGZhy{}status\PYGZsq{}}\PYG{p}{,} \PYG{n}{action}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}store\PYGZus{}true\PYGZdq{}}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Check wether or not the car is in the garage.\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{parser}\PYG{o}{.}\PYG{n}{add\PYGZus{}argument}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}S\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}\PYGZhy{}\PYGZhy{}door\PYGZhy{}status\PYGZsq{}}\PYG{p}{,} \PYG{n}{action}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}store\PYGZus{}true\PYGZdq{}}\PYG{p}{,} \PYG{n}{help}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Preveri v kaksnem stanju so vrata.\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{args} \PYG{o}{=} \PYG{n}{parser}\PYG{o}{.}\PYG{n}{parse\PYGZus{}args}\PYG{p}{()}
+
+    \PYG{k}{if} \PYG{n}{args}\PYG{o}{.}\PYG{n}{toggle} \PYG{o}{==} \PYG{n+nb+bp}{True}\PYG{p}{:}
+        \PYG{n}{logging}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Toggle garage activated.\PYGZdq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garage closed.\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{toggleGarage}\PYG{p}{()}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Opening garage...\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Waiting for garage to open.\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{60}\PYG{p}{):}
+                \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}odprta\PYGZsq{}}\PYG{p}{:}
+                    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garage opened.\PYGZdq{}}\PYG{p}{)}
+                    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Sending push notifiaction over Pushover...\PYGZdq{}}\PYG{p}{)}
+                    \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garaža odprta!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža\PYGZdq{}}\PYG{p}{)}
+                    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Pushover notification send.\PYGZdq{}}\PYG{p}{)}
+                    \PYG{k}{break}\PYG{p}{;}
+                \PYG{k}{elif} \PYG{n}{x} \PYG{o}{==} \PYG{l+m+mi}{60}\PYG{p}{:}
+                    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{warning}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Couldn\PYGZsq{}t open garage.\PYGZdq{}}\PYG{p}{)}
+                    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+                \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+            \PYG{k}{try}\PYG{p}{:}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Starting car starus monitoring...\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{c} \PYG{o}{=} \PYG{n}{Process}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{monitorCar}\PYG{p}{,}\PYG{n}{args}\PYG{o}{=}\PYG{p}{())}
+                \PYG{n}{c}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Car monitoring running.\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Starting temperature monitoring...\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{t} \PYG{o}{=} \PYG{n}{Process}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{monitorTemp}\PYG{p}{,}\PYG{n}{args}\PYG{o}{=}\PYG{p}{())}
+                \PYG{n}{t}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Temperature monitoring running.\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{c}\PYG{o}{.}\PYG{n}{join}\PYG{p}{()}
+                \PYG{n}{t}\PYG{o}{.}\PYG{n}{join}\PYG{p}{()}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Waiting for doors to close...\PYGZdq{}}\PYG{p}{)}
+                \PYG{k}{while} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+                    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{info}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Doors closed.\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Sending Pushover notification...\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}Garaža zaprta!\PYGZsq{}}\PYG{p}{,}\PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža\PYGZdq{}}\PYG{p}{)}
+                \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Pushover notification sent.\PYGZdq{}}\PYG{p}{)}
+            \PYG{k}{except}\PYG{p}{:}
+                \PYG{k}{print} \PYG{l+s+s2}{\PYGZdq{}Couldn\PYGZsq{}t start thread\PYGZdq{}}
+        \PYG{k}{elif} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}odprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garage is open.\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{cd} \PYG{o}{=} \PYG{n}{Process}\PYG{p}{(}\PYG{n}{target}\PYG{o}{=}\PYG{n}{closeDoor}\PYG{p}{(),}\PYG{n}{args}\PYG{o}{=}\PYG{p}{())}
+            \PYG{n}{cd}\PYG{o}{.}\PYG{n}{start}\PYG{p}{()}
+            \PYG{n}{cd}\PYG{o}{.}\PYG{n}{join}\PYG{p}{(}\PYG{l+m+mi}{60}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{n}{doorAjar}\PYG{p}{()}
+
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{car\PYGZus{}status} \PYG{o}{==} \PYG{n+nb+bp}{True}\PYG{p}{:}
+        \PYG{k}{if} \PYG{n}{checkCar}\PYG{p}{()} \PYG{o}{\PYGZlt{}} \PYG{l+m+mi}{15}\PYG{p}{:}
+            \PYG{k}{print} \PYG{l+s+s2}{\PYGZdq{}Avto je v garaži!\PYGZdq{}}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{print} \PYG{l+s+s2}{\PYGZdq{}Avta ni v garaži!\PYGZdq{}}
+    \PYG{k}{elif} \PYG{n}{args}\PYG{o}{.}\PYG{n}{door\PYGZus{}status} \PYG{o}{==} \PYG{n+nb+bp}{True}\PYG{p}{:}
+        \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{clear}\PYG{p}{()}
+    \PYG{k}{else}\PYG{p}{:}
+        \PYG{k}{print} \PYG{l+s+s1}{\PYGZsq{}nic\PYGZsq{}}
+        \PYG{n}{destroy}\PYG{p}{()}
+
+\PYG{k}{def} \PYG{n+nf}{closeDoor}\PYG{p}{():}
+    \PYG{n}{toggleGarage}\PYG{p}{()}
+    \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Zapiram garažo!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža\PYGZdq{}}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{]):}
+        \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{n}{pushover}\PYG{o}{.}\PYG{n}{send\PYGZus{}message}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Garaža zaprta!\PYGZdq{}}\PYG{p}{,} \PYG{n}{title}\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}Garaža\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{2}\PYG{p}{)}
+        \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{doorAjar}\PYG{p}{():}
+    \PYG{k}{for} \PYG{n}{attempts} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}CLOSE\PYGZus{}ATTEMPTS\PYGZsq{}}\PYG{p}{]):}
+        \PYG{n}{toggleGarage}\PYG{p}{()}
+        \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{]):}
+            \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}priprta\PYGZsq{}}\PYG{p}{:}
+                \PYG{k}{break}
+            \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{k}{break}
+        \PYG{c+c1}{\PYGZsh{}elif checkDoor() == \PYGZsq{}odprta\PYGZsq{}:}
+        \PYG{c+c1}{\PYGZsh{}    closeDoor()}
+
+\PYG{k}{def} \PYG{n+nf}{destroy}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}CAR\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{LOW}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} led off}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{LOW}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} led off}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{cleanup}\PYG{p}{()}
+
+\PYG{k}{def} \PYG{n+nf}{setup}\PYG{p}{():}
+    \PYG{c+c1}{\PYGZsh{}variables setup}
+    \PYG{k}{global} \PYG{n}{lcd}\PYG{p}{,}\PYG{n}{base\PYGZus{}dir}\PYG{p}{,}\PYG{n}{device\PYGZus{}folder}\PYG{p}{,}\PYG{n}{device\PYGZus{}file}
+    \PYG{c+c1}{\PYGZsh{}read from config}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Setting variables for reading from config file...\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{GPIO\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}CAR\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}CAR\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}OPEN\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}CLOSED\PYGZsq{}}\PYG{p}{]}
+    \PYG{n}{TEMP\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}MAX\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}MIN\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{]}
+    \PYG{n}{TIMEOUTS\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}CAR\PYGZus{}STATUS\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}BEGIN\PYGZus{}TEMP\PYGZus{}WATCH\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}CLOSE\PYGZus{}ATTEMPTS\PYGZsq{}}\PYG{p}{]}
+    \PYG{n}{LCD\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}cols\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}rows\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}rs\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}e\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d4\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d5\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d6\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d7\PYGZsq{}}\PYG{p}{]}
+    \PYG{k}{global} \PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{,} \PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{,} \PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}
+    \PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Variables for reading from config file set.\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Reading GPIO configuration...\PYGZdq{}\PYGZdq{})}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}gpio\PYGZsq{}}\PYG{p}{,}\PYG{n}{GPIO\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Finished reading GPIO configuration\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Reading temperature configuration...\PYGZdq{}\PYGZdq{})}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}temperature\PYGZsq{}}\PYG{p}{,}\PYG{n}{TEMP\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Finished reading temperature configuration\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Reading timeouts configuration...\PYGZdq{}\PYGZdq{})}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}timeouts\PYGZsq{}}\PYG{p}{,}\PYG{n}{TIMEOUTS\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Finished reading timeouts configuration\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Reading LCD configuration...\PYGZdq{}\PYGZdq{})}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}lcd\PYGZsq{}}\PYG{p}{,}\PYG{n}{LCD\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Finished reading LCD configuration\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}GPIO setup}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Setting up GPIO...\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setmode}\PYG{p}{(}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{BCM}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{OUT}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{IN}\PYG{p}{,}\PYG{n}{pull\PYGZus{}up\PYGZus{}down}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{PUD\PYGZus{}DOWN}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}CAR\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{IN}\PYG{p}{,}\PYG{n}{pull\PYGZus{}up\PYGZus{}down}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{PUD\PYGZus{}DOWN}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{IN}\PYG{p}{,}\PYG{n}{pull\PYGZus{}up\PYGZus{}down}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{PUD\PYGZus{}DOWN}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}CAR\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{OUT}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} Set LedPin\PYGZsq{}s mode is output}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{OUT}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} Set LedPin\PYGZsq{}s mode is output}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{OUT}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}OPEN\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{IN}\PYG{p}{,} \PYG{n}{pull\PYGZus{}up\PYGZus{}down}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{PUD\PYGZus{}DOWN}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}CLOSED\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{IN}\PYG{p}{,} \PYG{n}{pull\PYGZus{}up\PYGZus{}down}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{PUD\PYGZus{}DOWN}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setwarnings}\PYG{p}{(}\PYG{n+nb+bp}{False}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}GPIO setup finished.\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}LCD setup}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Setting up LCD...\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{lcd} \PYG{o}{=} \PYG{n}{CharLCD}\PYG{p}{(}\PYG{n}{cols}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}cols\PYGZsq{}}\PYG{p}{],} \PYG{n}{rows}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}rows\PYGZsq{}}\PYG{p}{],} \PYG{n}{pin\PYGZus{}rs}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}rs\PYGZsq{}}\PYG{p}{],} \PYG{n}{pin\PYGZus{}e}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}e\PYGZsq{}}\PYG{p}{],} \PYG{n}{pins\PYGZus{}data}\PYG{o}{=}\PYG{p}{[}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d4\PYGZsq{}}\PYG{p}{],}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d5\PYGZsq{}}\PYG{p}{],}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d6\PYGZsq{}}\PYG{p}{],}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d7\PYGZsq{}}\PYG{p}{]],}\PYG{n}{numbering\PYGZus{}mode}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{BCM}\PYG{p}{)}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}LCD setup finished.\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}temp sensor setup}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Setting up temperature sensor...\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}modprobe w1\PYGZhy{}gpio\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}modprobe w1\PYGZhy{}therm\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{base\PYGZus{}dir} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}/sys/bus/w1/devices/\PYGZsq{}}
+    \PYG{n}{device\PYGZus{}folder} \PYG{o}{=} \PYG{n}{glob}\PYG{o}{.}\PYG{n}{glob}\PYG{p}{(}\PYG{n}{base\PYGZus{}dir} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}28*\PYGZsq{}}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{n}{device\PYGZus{}file} \PYG{o}{=} \PYG{n}{device\PYGZus{}folder} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}/w1\PYGZus{}slave\PYGZsq{}}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Temperature sensor setup finished.\PYGZdq{}}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}pushover setup}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Setting up Pushover...\PYGZdq{}}\PYG{p}{)}
+    \PYG{n}{configParser} \PYG{o}{=} \PYG{n}{ConfigParser}\PYG{o}{.}\PYG{n}{RawConfigParser}\PYG{p}{(}\PYG{n}{allow\PYGZus{}no\PYGZus{}value}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+    \PYG{n}{configParser}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}HOME\PYGZsq{}}\PYG{p}{]}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/garage.conf\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{global} \PYG{n}{pushover}
+    \PYG{n}{pushover} \PYG{o}{=} \PYG{n}{Client}\PYG{p}{(}\PYG{n}{configParser}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}pushover\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}user\PYGZus{}key\PYGZsq{}}\PYG{p}{),} \PYG{n}{api\PYGZus{}token}\PYG{o}{=}\PYG{n}{configParser}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}pushover\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}api\PYGZus{}token\PYGZsq{}}\PYG{p}{))}
+    \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Pushover sertup finished.\PYGZdq{}}\PYG{p}{)}
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{k}{try}\PYG{p}{:}
+        \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Checking if /tmp/LCD\PYGZus{}temp.pid exists...\PYGZdq{}}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isfile}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid\PYGZdq{}}\PYG{p}{):}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid exists.\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Killing LCD\PYGZus{}temperature.py...\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}kill \PYGZdl{}(cat /tmp/LCD\PYGZus{}temp.pid)\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}LCD\PYGZus{}temperature.py killed.\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Removing /tmp/LCD\PYGZus{}temp.pid...\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{os}\PYG{o}{.}\PYG{n}{unlink}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid removed.\PYGZdq{}}\PYG{p}{)}
+        \PYG{c+c1}{\PYGZsh{}m = Process(target=mainScreen,args=())}
+        \PYG{n}{setup}\PYG{p}{()}
+        \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{clear}\PYG{p}{()}
+        \PYG{c+c1}{\PYGZsh{}m.start()}
+        \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}Starting temperature\PYGZus{}LCD.py...\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}python temperature\PYGZus{}LCD.py \PYGZam{}\PYGZsq{}}\PYG{p}{)}
+        \PYG{n}{logging}\PYG{o}{.}\PYG{n}{debug}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}LCD\PYGZus{}temperature running.\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{arguments}\PYG{p}{()}
+        \PYG{c+c1}{\PYGZsh{}m.join()}
+    \PYG{k}{except} \PYG{n+ne}{KeyboardInterrupt}\PYG{p}{:}
+        \PYG{n}{destroy}\PYG{p}{()}
+    \PYG{k}{finally}\PYG{p}{:}
+        \PYG{n}{destroy}\PYG{p}{()}
+        \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isfile}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid\PYGZdq{}}\PYG{p}{):}
+            \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}kill \PYGZdl{}(cat /tmp/LCD\PYGZus{}temp.pid)\PYGZdq{}}\PYG{p}{)}
+            \PYG{n}{os}\PYG{o}{.}\PYG{n}{unlink}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid\PYGZdq{}}\PYG{p}{)}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}python temperature\PYGZus{}LCD.py \PYGZam{}\PYGZsq{}}\PYG{p}{)}
+\end{Verbatim}

@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{n+nv}{country}\PYG{o}{=}SI
+\PYG{n+nv}{ctrl\PYGZus{}interface}\PYG{o}{=}\PYG{n+nv}{DIR}\PYG{o}{=}/var/run/wpa\PYGZus{}supplicant \PYG{n+nv}{GROUP}\PYG{o}{=}netdev
+\PYG{n+nv}{update\PYGZus{}config}\PYG{o}{=}\PYG{l+m}{1}
+\PYG{n+nv}{network}\PYG{o}{=\PYGZob{}}
+\PYGZca{}\PYGZca{}Issid\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}imeDostopneTpočke\PYGZdq{}}
+\PYGZca{}\PYGZca{}Ipsk\PYG{o}{=}\PYG{l+s+s2}{\PYGZdq{}geslo\PYGZdq{}}
+\PYGZca{}\PYGZca{}Ikey\PYGZus{}mgmt\PYG{o}{=}WPA\PYGZhy{}PSK
+\PYG{o}{\PYGZcb{}}
+\end{Verbatim}

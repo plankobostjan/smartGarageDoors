@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{n}{sudo} \PYG{n}{apt} \PYG{n}{update} \PYG{o}{\PYGZam{}\PYGZam{}} \PYG{n}{sudo} \PYG{n}{apt} \PYG{n}{upgrade} \PYG{o}{\PYGZhy{}}\PYG{n}{y}
+\end{Verbatim}

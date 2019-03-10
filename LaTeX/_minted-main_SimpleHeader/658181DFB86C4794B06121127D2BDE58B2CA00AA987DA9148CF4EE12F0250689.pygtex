@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{n}{ssh} \PYG{n}{pi}\PYG{n+nd}{@IP\PYGZus{}RaspberryPi} \PYG{c+c1}{\PYGZsh{}uporabnik pi, privzeto geslo pa je raspberry}
+\end{Verbatim}

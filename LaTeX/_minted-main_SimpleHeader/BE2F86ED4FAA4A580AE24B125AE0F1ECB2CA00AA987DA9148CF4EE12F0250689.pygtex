@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{k}{def} \PYG{n+nf}{toggleGarage}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{o}{.}\PYG{l+m+mi}{5}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{1}\PYG{p}{)}
+\end{Verbatim}

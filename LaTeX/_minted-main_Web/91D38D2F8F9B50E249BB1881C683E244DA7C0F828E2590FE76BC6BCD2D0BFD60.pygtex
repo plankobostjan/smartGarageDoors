@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{k}{def} \PYG{n+nf}{doorAjar}\PYG{p}{():}
+    \PYG{k}{for} \PYG{n}{attempts} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}CLOSE\PYGZus{}ATTEMPTS\PYGZsq{}}\PYG{p}{]):}
+        \PYG{n}{toggleGarage}\PYG{p}{()}
+        \PYG{k}{for} \PYG{n}{x} \PYG{o+ow}{in} \PYG{n+nb}{range}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{]):}
+            \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}priprta\PYGZsq{}}\PYG{p}{:}
+                \PYG{k}{break}
+            \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+        \PYG{k}{if} \PYG{n}{checkDoor}\PYG{p}{()} \PYG{o}{==} \PYG{l+s+s1}{\PYGZsq{}zaprta\PYGZsq{}}\PYG{p}{:}
+            \PYG{k}{break}
+\end{Verbatim}

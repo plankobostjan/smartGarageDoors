@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{p}{[}\PYG{n}{gpio}\PYG{p}{]}
+\PYG{n}{TRIG} \PYG{o}{=} \PYG{l+m+mi}{11}
+\PYG{n}{ECHO} \PYG{o}{=} \PYG{l+m+mi}{20}
+\PYG{n}{RELAY} \PYG{o}{=} \PYG{l+m+mi}{16}
+\end{Verbatim}

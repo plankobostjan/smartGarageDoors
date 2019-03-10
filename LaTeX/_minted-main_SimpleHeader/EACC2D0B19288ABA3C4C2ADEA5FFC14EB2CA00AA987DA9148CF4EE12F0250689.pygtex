@@ -1,0 +1,106 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{c+ch}{\PYGZsh{}!/usr/bin/python}
+\PYG{c+c1}{\PYGZsh{} \PYGZhy{}*\PYGZhy{} coding: utf\PYGZhy{}8 \PYGZhy{}*\PYGZhy{}}
+\PYG{k+kn}{from} \PYG{n+nn}{datetime} \PYG{k+kn}{import} \PYG{n}{datetime}
+\PYG{k+kn}{import} \PYG{n+nn}{ConfigParser}
+\PYG{k+kn}{from} \PYG{n+nn}{RPLCD.gpio} \PYG{k+kn}{import} \PYG{n}{CharLCD}
+\PYG{k+kn}{import} \PYG{n+nn}{RPi.GPIO} \PYG{k+kn}{as} \PYG{n+nn}{GPIO}
+\PYG{k+kn}{import} \PYG{n+nn}{argparse}
+\PYG{k+kn}{import} \PYG{n+nn}{os}
+\PYG{k+kn}{import} \PYG{n+nn}{time}
+\PYG{k+kn}{import} \PYG{n+nn}{glob}
+\PYG{k+kn}{import} \PYG{n+nn}{sys}
+
+\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setwarnings}\PYG{p}{(}\PYG{n+nb+bp}{False}\PYG{p}{)}
+
+\PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}modprobe w1\PYGZhy{}gpio\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}modprobe w1\PYGZhy{}therm\PYGZsq{}}\PYG{p}{)}
+
+\PYG{n}{base\PYGZus{}dir} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}/sys/bus/w1/devices/\PYGZsq{}}
+\PYG{n}{device\PYGZus{}folder} \PYG{o}{=} \PYG{n}{glob}\PYG{o}{.}\PYG{n}{glob}\PYG{p}{(}\PYG{n}{base\PYGZus{}dir} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}28*\PYGZsq{}}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+\PYG{n}{device\PYGZus{}file} \PYG{o}{=} \PYG{n}{device\PYGZus{}folder} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}/w1\PYGZus{}slave\PYGZsq{}}
+
+\PYG{k}{def} \PYG{n+nf}{readConf}\PYG{p}{(}\PYG{n}{section}\PYG{p}{,} \PYG{n+nb}{vars}\PYG{p}{,} \PYG{n}{val\PYGZus{}dict}\PYG{p}{):}
+    \PYG{n}{configParser} \PYG{o}{=} \PYG{n}{ConfigParser}\PYG{o}{.}\PYG{n}{RawConfigParser}\PYG{p}{(}\PYG{n}{allow\PYGZus{}no\PYGZus{}value}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+    \PYG{n}{configParser}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}HOME\PYGZsq{}}\PYG{p}{]}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/garage.conf\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{for} \PYG{n}{value} \PYG{o+ow}{in} \PYG{n+nb}{vars}\PYG{p}{:}
+        \PYG{n}{val\PYGZus{}dict}\PYG{p}{[}\PYG{n}{value}\PYG{p}{]} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{configParser}\PYG{o}{.}\PYG{n}{get}\PYG{p}{(}\PYG{n}{section}\PYG{p}{,} \PYG{n}{value}\PYG{p}{))}
+
+\PYG{k}{def} \PYG{n+nf}{read\PYGZus{}temp\PYGZus{}raw}\PYG{p}{():}
+    \PYG{n}{f} \PYG{o}{=} \PYG{n+nb}{open}\PYG{p}{(}\PYG{n}{device\PYGZus{}file}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}r\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{lines} \PYG{o}{=} \PYG{n}{f}\PYG{o}{.}\PYG{n}{readlines}\PYG{p}{()}
+    \PYG{n}{f}\PYG{o}{.}\PYG{n}{close}\PYG{p}{()}
+    \PYG{k}{return} \PYG{n}{lines}
+
+\PYG{k}{def} \PYG{n+nf}{read\PYGZus{}temp}\PYG{p}{():}
+    \PYG{n}{lines} \PYG{o}{=} \PYG{n}{read\PYGZus{}temp\PYGZus{}raw}\PYG{p}{()}
+    \PYG{k}{while} \PYG{n}{lines}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{]}\PYG{o}{.}\PYG{n}{strip}\PYG{p}{()[}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{3}\PYG{p}{:]} \PYG{o}{!=} \PYG{l+s+s1}{\PYGZsq{}YES\PYGZsq{}}\PYG{p}{:}
+        \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.2}\PYG{p}{)}
+        \PYG{n}{lines} \PYG{o}{=} \PYG{n}{read\PYGZus{}temp\PYGZus{}raw}\PYG{p}{()}
+    \PYG{n}{equals\PYGZus{}pos} \PYG{o}{=} \PYG{n}{lines}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{]}\PYG{o}{.}\PYG{n}{find}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}t=\PYGZsq{}}\PYG{p}{)}
+    \PYG{k}{if} \PYG{n}{equals\PYGZus{}pos} \PYG{o}{!=} \PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{:}
+        \PYG{n}{temp\PYGZus{}string} \PYG{o}{=} \PYG{n}{lines}\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{][}\PYG{n}{equals\PYGZus{}pos}\PYG{o}{+}\PYG{l+m+mi}{2}\PYG{p}{:]}
+        \PYG{n}{temp\PYGZus{}c} \PYG{o}{=} \PYG{n+nb}{int}\PYG{p}{(}\PYG{n}{temp\PYGZus{}string}\PYG{p}{)} \PYG{o}{/} \PYG{l+m+mf}{1000.0} \PYG{c+c1}{\PYGZsh{} TEMP\PYGZus{}STRING IS THE SENSOR OUTPUT, MAKE SURE IT\PYGZsq{}S AN INTEGER TO DO THE MATH}
+        \PYG{n}{temp\PYGZus{}c} \PYG{o}{=} \PYG{n+nb}{round}\PYG{p}{(}\PYG{n}{temp\PYGZus{}c}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{)} \PYG{c+c1}{\PYGZsh{} ROUND THE RESULT TO 1 PLACE AFTER THE DECIMAL}
+        \PYG{k}{return} \PYG{n}{temp\PYGZus{}c}
+
+\PYG{k}{def} \PYG{n+nf}{lcd\PYGZus{}write}\PYG{p}{(}\PYG{n}{line1}\PYG{p}{,} \PYG{n}{line2}\PYG{p}{):}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{cursor\PYGZus{}pos} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{write\PYGZus{}string}\PYG{p}{(}\PYG{n}{line1}\PYG{p}{)}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{cursor\PYGZus{}pos} \PYG{o}{=} \PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mi}{0}\PYG{p}{)}
+    \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{write\PYGZus{}string}\PYG{p}{(}\PYG{n}{line2}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{init}\PYG{p}{():}
+    \PYG{c+c1}{\PYGZsh{}variables setup}
+    \PYG{k}{global} \PYG{n}{lcd}\PYG{p}{,}\PYG{n}{base\PYGZus{}dir}\PYG{p}{,}\PYG{n}{device\PYGZus{}folder}\PYG{p}{,}\PYG{n}{device\PYGZus{}file}
+    \PYG{c+c1}{\PYGZsh{}read from config}
+    \PYG{n}{GPIO\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}RELAY\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}CAR\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}CAR\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}OPEN\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}REED\PYGZus{}CLOSED\PYGZsq{}}\PYG{p}{]}
+    \PYG{n}{TEMP\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}MAX\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}MIN\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{]}
+    \PYG{n}{TIMEOUTS\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}CAR\PYGZus{}STATUS\PYGZus{}TIMEOUT\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}BEGIN\PYGZus{}TEMP\PYGZus{}WATCH\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}AJAR\PYGZus{}CLOSE\PYGZus{}ATTEMPTS\PYGZsq{}}\PYG{p}{]}
+    \PYG{n}{LCD\PYGZus{}VARS} \PYG{o}{=} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}cols\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}rows\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}rs\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}e\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d4\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d5\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d6\PYGZsq{}}\PYG{p}{,}\PYG{l+s+s1}{\PYGZsq{}d7\PYGZsq{}}\PYG{p}{]}
+    \PYG{k}{global} \PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{,} \PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{,} \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{,} \PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}
+    \PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT} \PYG{o}{=} \PYG{n+nb}{dict}\PYG{p}{()}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}gpio\PYGZsq{}}\PYG{p}{,}\PYG{n}{GPIO\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}temperature\PYGZsq{}}\PYG{p}{,}\PYG{n}{TEMP\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{TEMP\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}timeouts\PYGZsq{}}\PYG{p}{,}\PYG{n}{TIMEOUTS\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{TIMEOUTS\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{n}{readConf}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}lcd\PYGZsq{}}\PYG{p}{,}\PYG{n}{LCD\PYGZus{}VARS}\PYG{p}{,}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}GPIO setup}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setmode}\PYG{p}{(}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{BCM}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}OVERRIDE\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{],}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{IN}\PYG{p}{,}\PYG{n}{pull\PYGZus{}up\PYGZus{}down}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{PUD\PYGZus{}DOWN}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{setup}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}LED\PYGZus{}MONITOR\PYGZus{}TEMP\PYGZsq{}}\PYG{p}{],} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{OUT}\PYG{p}{)}   \PYG{c+c1}{\PYGZsh{} Set LedPin\PYGZsq{}s mode is output}
+    \PYG{c+c1}{\PYGZsh{}LCD setup}
+    \PYG{n}{lcd} \PYG{o}{=} \PYG{n}{CharLCD}\PYG{p}{(}\PYG{n}{cols}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}cols\PYGZsq{}}\PYG{p}{],} \PYG{n}{rows}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}rows\PYGZsq{}}\PYG{p}{],} \PYG{n}{pin\PYGZus{}rs}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}rs\PYGZsq{}}\PYG{p}{],} \PYG{n}{pin\PYGZus{}e}\PYG{o}{=}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}pin\PYGZus{}e\PYGZsq{}}\PYG{p}{],} \PYG{n}{pins\PYGZus{}data}\PYG{o}{=}\PYG{p}{[}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d4\PYGZsq{}}\PYG{p}{],}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d5\PYGZsq{}}\PYG{p}{],}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d6\PYGZsq{}}\PYG{p}{],}\PYG{n}{LCD\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}d7\PYGZsq{}}\PYG{p}{]],}\PYG{n}{numbering\PYGZus{}mode}\PYG{o}{=}\PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{BCM}\PYG{p}{)}
+    \PYG{c+c1}{\PYGZsh{}temp sensor setup}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}modprobe w1\PYGZhy{}gpio\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{system}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}modprobe w1\PYGZhy{}therm\PYGZsq{}}\PYG{p}{)}
+    \PYG{n}{base\PYGZus{}dir} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}/sys/bus/w1/devices/\PYGZsq{}}
+    \PYG{n}{device\PYGZus{}folder} \PYG{o}{=} \PYG{n}{glob}\PYG{o}{.}\PYG{n}{glob}\PYG{p}{(}\PYG{n}{base\PYGZus{}dir} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}28*\PYGZsq{}}\PYG{p}{)[}\PYG{l+m+mi}{0}\PYG{p}{]}
+    \PYG{n}{device\PYGZus{}file} \PYG{o}{=} \PYG{n}{device\PYGZus{}folder} \PYG{o}{+} \PYG{l+s+s1}{\PYGZsq{}/w1\PYGZus{}slave\PYGZsq{}}
+    \PYG{c+c1}{\PYGZsh{}pushover setup}
+    \PYG{n}{configParser} \PYG{o}{=} \PYG{n}{ConfigParser}\PYG{o}{.}\PYG{n}{RawConfigParser}\PYG{p}{(}\PYG{n}{allow\PYGZus{}no\PYGZus{}value}\PYG{o}{=}\PYG{n+nb+bp}{True}\PYG{p}{)}
+    \PYG{n}{configParser}\PYG{o}{.}\PYG{n}{read}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}HOME\PYGZsq{}}\PYG{p}{]}\PYG{o}{+}\PYG{l+s+s1}{\PYGZsq{}/.garage/garage.conf\PYGZsq{}}\PYG{p}{)}
+
+\PYG{k}{def} \PYG{n+nf}{destroy}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{cleanup}\PYG{p}{()}
+
+\PYG{k}{if} \PYG{n+nv+vm}{\PYGZus{}\PYGZus{}name\PYGZus{}\PYGZus{}}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}\PYGZus{}\PYGZus{}main\PYGZus{}\PYGZus{}\PYGZdq{}}\PYG{p}{:}
+    \PYG{n}{pid} \PYG{o}{=} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{os}\PYG{o}{.}\PYG{n}{getpid}\PYG{p}{())}
+    \PYG{n}{pidfile} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}/tmp/LCD\PYGZus{}temp.pid\PYGZdq{}}
+
+    \PYG{k}{if} \PYG{n}{os}\PYG{o}{.}\PYG{n}{path}\PYG{o}{.}\PYG{n}{isfile}\PYG{p}{(}\PYG{n}{pidfile}\PYG{p}{):}
+        \PYG{k}{print} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZpc{}s}\PYG{l+s+s2}{ already exists, exiting\PYGZdq{}} \PYG{o}{\PYGZpc{}} \PYG{n}{pidfile}
+        \PYG{n}{sys}\PYG{o}{.}\PYG{n}{exit}\PYG{p}{()}
+    \PYG{n+nb}{file}\PYG{p}{(}\PYG{n}{pidfile}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}w\PYGZsq{}}\PYG{p}{)}\PYG{o}{.}\PYG{n}{write}\PYG{p}{(}\PYG{n}{pid}\PYG{p}{)}
+    \PYG{k}{try}\PYG{p}{:}
+        \PYG{n}{init}\PYG{p}{()}
+        \PYG{n}{lcd}\PYG{o}{.}\PYG{n}{clear}\PYG{p}{()}
+        \PYG{k}{while} \PYG{n+nb+bp}{True}\PYG{p}{:}
+        \PYG{o}{\PYGZca{}\PYGZca{}}\PYG{n}{Ilcd\PYGZus{}write}\PYG{p}{(}\PYG{n}{datetime}\PYG{o}{.}\PYG{n}{now}\PYG{p}{()}\PYG{o}{.}\PYG{n}{strftime}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZpc{}d}\PYG{l+s+s2}{.\PYGZpc{}m.\PYGZpc{}y  \PYGZpc{}H:\PYGZpc{}M\PYGZdq{}}\PYG{p}{),} \PYG{l+s+s2}{\PYGZdq{}Temp: \PYGZdq{}} \PYG{o}{+} \PYG{n+nb}{str}\PYG{p}{(}\PYG{n}{read\PYGZus{}temp}\PYG{p}{())}\PYG{o}{+}\PYG{n+nb}{unichr}\PYG{p}{(}\PYG{l+m+mi}{223}\PYG{p}{)}\PYG{o}{+}\PYG{l+s+s2}{\PYGZdq{}C\PYGZdq{}}\PYG{p}{)}
+        \PYG{o}{\PYGZca{}\PYGZca{}}\PYG{n}{Itime}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{p}{)}
+    \PYG{k}{except}\PYG{p}{:}
+        \PYG{n}{os}\PYG{o}{.}\PYG{n}{unlink}\PYG{p}{(}\PYG{n}{pidfile}\PYG{p}{)}
+        \PYG{n}{destroy}\PYG{p}{()}
+\end{Verbatim}

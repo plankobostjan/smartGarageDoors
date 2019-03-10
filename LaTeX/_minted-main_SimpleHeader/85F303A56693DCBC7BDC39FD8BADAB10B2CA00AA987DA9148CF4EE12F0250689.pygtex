@@ -1,0 +1,20 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PYG{k}{def} \PYG{n+nf}{checkCar}\PYG{p}{():}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],} \PYG{n+nb+bp}{False}\PYG{p}{)}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.001}\PYG{p}{)}
+
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],} \PYG{n+nb+bp}{True}\PYG{p}{)}
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mf}{0.00001}\PYG{p}{)}
+    \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{output}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}TRIG\PYGZsq{}}\PYG{p}{],} \PYG{n+nb+bp}{False}\PYG{p}{)}
+
+    \PYG{k}{while} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{])}\PYG{o}{==}\PYG{l+m+mi}{0}\PYG{p}{:}
+      \PYG{n}{pulse\PYGZus{}start} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+
+    \PYG{k}{while} \PYG{n}{GPIO}\PYG{o}{.}\PYG{n}{input}\PYG{p}{(}\PYG{n}{GPIO\PYGZus{}VARS\PYGZus{}DICT}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}ECHO\PYGZsq{}}\PYG{p}{])}\PYG{o}{==}\PYG{l+m+mi}{1}\PYG{p}{:}
+      \PYG{n}{pulse\PYGZus{}end} \PYG{o}{=} \PYG{n}{time}\PYG{o}{.}\PYG{n}{time}\PYG{p}{()}
+
+    \PYG{n}{pulse\PYGZus{}duration} \PYG{o}{=} \PYG{n}{pulse\PYGZus{}end} \PYG{o}{\PYGZhy{}} \PYG{n}{pulse\PYGZus{}start}
+    \PYG{n}{distance} \PYG{o}{=} \PYG{n}{pulse\PYGZus{}duration} \PYG{o}{*} \PYG{l+m+mi}{17150}
+
+    \PYG{k}{return} \PYG{n+nb}{round}\PYG{p}{(}\PYG{n}{distance}\PYG{p}{,} \PYG{l+m+mi}{2}\PYG{p}{)}
+\end{Verbatim}

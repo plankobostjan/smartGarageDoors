@@ -49,8 +49,8 @@
   head=25mm
 }
 
-\setlength{\parindent}{0em}
-\setlength{\parskip}{1em}
+\setlength{\parindent}{1em}
+%\setlength{\parskip}{1em}
 %%--------------------------------End of geometry aka page layout setup--------------------------------%%
 
 \usepackage{fontspec}
@@ -105,23 +105,26 @@
 \renewcommand{\cfttoctitlefont}{\Large\bfseries\sffamily}
 %\setlength{\cfttocnumwidth}{1mm}
 %%--------------------------------End of ToC setup--------------------------------%%
+
 %%--------------------------------Acronyms and glossaries setup--------------------------------%%
-\usepackage[acronym, toc]{glossaries}
+
+
+%\usepackage[acronym, toc]{glossaries}
+\usepackage[acronym]{glossaries}
 \makeglossaries
 %%--------------------------------Acronyms--------------------------------%%
-\newglossaryentry{ssh}{type=\acronymtype, name={SSH}, description={Secure Shell}, first={Secure Shell (SSH)\glsadd{sshg}}, see=[Glossary:]{sshg}}
+\newacronym{ssh}{SSH}{Secure Shell}
 %%--------------------------------End of Acronyms--------------------------------%%
 
 %%--------------------------------Glossary--------------------------------%%
-\newglossaryentry{guig}{name={GUI},
-    description={``The graphical user interface, is a type of user interface that allows users to interact with electronic devices through graphical icons and visual indicators." \cite{wikiGUI}}}
+
 %%--------------------------------End of Glossary--------------------------------%%
 %%--------------------------------End of acronyms and glossaries setup--------------------------------%%
 
 %%--------------------------------Custom commands--------------------------------%%
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\normalsize\$ #1}\\}
 \newcommand{\shellcmdn}[1]{\\\texttt{\normalsize\$ #1}\\}
-\newcommand{\source}[2]{\caption{#1}\vspace{-1.5mm}{\tiny{\url{{#2}}}} }
+\newcommand{\source}[2]{\caption{#1}\vspace{-1.5mm}{\tiny{Vir: \url{{#2}}}} }
 \newcommand{\numpara}[1]{\paragraph{{#1}}\mbox{}\vspace{0mm}}
 %%--------------------------------End of Custom commands--------------------------------%%
 
@@ -142,7 +145,7 @@
    \begin{center}
    \Huge{\bfseries Pametna garažna vrata}\\
    \vspace{1mm}
-   \large{Raziskovalna naloga}
+   \large{raziskovalna naloga}
    \end{center}
    \vspace*{\fill}
    	%------------------------------------------------
@@ -195,7 +198,7 @@
    \begin{center}
    \Huge{\bfseries Pametna garažna vrata}\\
    \vspace{1mm}
-   \large{Raziskovalna naloga}
+   \large{raziskovalna naloga}
    \end{center}
    \vspace*{\fill}
    	%------------------------------------------------
@@ -248,6 +251,8 @@ Raziskoval sem podrčje elektronike in avtomizacije. Glavni cilj razsikovalne na
 I was researching the field of electroics and automization. Main goal of this paper was finding out if it is possible to automate garage doors using Raspberry Pi. I had to analize a lot of documentation to get the knowledge that was required in order to finish my project. I also had to experiment quite a lot. In the end I came to the conclusion that the basic idea for my project is quite basic. Despite that, things can get really complicated really fast. End result of my work is working prototype that has a lot of possibilities to expand the project even further.
 \section*{Ključne besede}
 raspberry pi, senzorji, python, raspbian, avtomizacija
+
+\printglossaries
 %%--------------------------------End of abstract--------------------------------%%
 
 %%--------------------------------Beginning of ToC--------------------------------%%
@@ -283,7 +288,7 @@ V tej nalogi bom predstavil svojo idejo, pametna garažna vrata, kot sem si jih 
 \subsection{Hipoteze}
 Za raziskovalno nalogo sem si postavil naslednje hipoteze:
 \begin{enumerate}
-  \setlength\itemsep{0.5mm}
+  %\setlength\itemsep{0.5mm}
     \item Garažna vrata bo možno upravljati s telefonom.
     \item Garažna vrata bo možno upravljati preko spletne strani.
     \item Raspberry Pi bo spremljal, ali je avto v garaži ali ne, in glede na to samodejno zapiral garažna vrata.
@@ -319,8 +324,8 @@ Pri programiranju in sestavljanju prototipa sem uporabil predvsem metodo eksperi
 \section{Priprava Raspberry Pi-ja}
  Da bom lahko uporabljal Raspberry Pi, moram najprej naložiti usterzen opreacijski sistem. Ker za svoj projekt ne potrebujem grafičnega vmesnika, na Raspberry Pi namestim Raspbian Lite. To storim tako, da iz uradne strani Raspberry Pi \cite{RPi_raspbian} prenesem Raspbian Stretch Lite. Nato sledim navodilom za namestitev \cite{RPi_install} operacijskega sistema na microSd kartico, ki jo nato vstavim v Raspberry Pi.
 
-Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, moram pred zagonom omogočiti še SSH ter vnesti podatke, ki jih Raspberry Pi potrebuje za povezavo na WiFi dostopno točko. Da omogočim SSH, na boot particijo microSD katrice dodam datoteko ssh. Da pa se bo Raspberry Pi lahko povezal na WiFi dostopno točko, moram na boot particiji ustvariti datoteko wpa\_supplicant.conf, v katero vnesem naslednje:
-
+Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, moram pred zagonom omogočiti še \gls{ssh} ter vnesti podatke, ki jih Raspberry Pi potrebuje za povezavo na WiFi dostopno točko. Da omogočim SSH, na boot particijo microSD katrice dodam datoteko ssh. Da pa se bo Raspberry Pi lahko povezal na WiFi dostopno točko, moram na boot particiji ustvariti datoteko wpa\_supplicant.conf, v katero vnesem naslednje:
+\newpage
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -426,7 +431,8 @@ Senzor ima štiri pine: VCC, GND, Trig, Echo. VCC povežem na 5 V. GND povežem 
 \centering
 \includegraphics[width=0.5\textwidth]{images/smartGarage_Distance_bb.png}
 \caption{Priklop HC-SR04 unltrazvočnega senzorja razdalje}
-\end{figure}\\
+\end{figure}
+\newpage
 Da pridobim razdaljo, uporabim naslednjo metodo:
 \begin{minted}[mathescape,
                linenos,
@@ -453,7 +459,6 @@ def checkCar():
 
     return round(distance, 2)
 \end{minted}
-\newpage
 \subsection{DS18B20 temperaturni senzor}
 Ker sem v projektu prvič uporabil DS18B20 senzor temperature, sem si pomagal z vodičem na PiMyLifeUp \cite{PiMyLifeUp_DS18B20}.
 
@@ -461,7 +466,7 @@ Priklop je povsem enostaven. Vse kar potrebujemo, je DS18B20 senzor temperature 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.5\textwidth]{images/DS18B20_diagram.png}
-\caption{Priklop DS18B20}
+\source{Priklop DS18B20}{https://cdn.pimylifeup.com/wp-content/uploads/2016/03/Raspberry-Pi-Temperature-Sensor-Diagram-v2.png}
 \end{figure}
 
 \subsection{LCD zaslon}
@@ -475,7 +480,7 @@ LCD zaslon sem priklopil na Raspberry Pi, kot je prikazano na spodnji sliki.
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.3\textwidth]{images/LCD_4bit.png}
-\caption{Priklop LCD zaslona}
+\source{Priklop LCD zaslona}{http://www.circuitbasics.com/wp-content/uploads/2015/04/Raspberry-Pi-LCD-4-bit-mode-719x1024.png}
 \end{figure}
 \newpage
 \subsection{Tipki in LED diodi}
@@ -544,7 +549,7 @@ Ker se včasih zgodi, da zvečer pozabimo zapreti garažna vrata, se mi je zdelo
 Med testiranjem programa za garažna vrata sem kmalu odkril relativno pomembno napako. Dogajalo se je, da je program želel vrata zapreti, to pa zaradi npr. ovire pod vrati ni bilo mogoče. Ker program ni bil dobro napisan, je v nedogled poskušal brez uspeha zapreti vrata.
 
 Težavo sem rešil tako, da sem napisal metodo v katero program vstopi, če se vrata po poskusu zapiranja ne zaprejo. Metoda nato še nekajkrat poskuša zapreti vrata. Če to ni mogoče, vrata ostanejo priprta.
-
+\newpage
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -568,7 +573,7 @@ def doorAjar():
 Za lažje nastavljanje spremenljivk, kot je na primer termperatura, pri kateri se garažna vrata zaprejo, sem se odločil uporabiti konifugacijsko datoteko.
 
 Ker te do sedaj še nikoli nisem uporabljal, mi je bila uradna Pythonova dokumentacija \cite{Py_configParser} v veliko pomoč.
-\newpage
+
 \subsubsection{Datoteka}
 Zgradba konfiguracijske datoteke je zelo preprosta. V oglatih oklepajih se nahaja ime odseka, sledijo imena spremenljivk, katerih vrednost je določena z enačajem, ki mu sledi vrednost.
 \begin{minted}[mathescape,
@@ -614,6 +619,7 @@ Za spremljanje stanja garažnih vrat in njihovo upravljanje bi bilo dobro imeti 
 \newpage
 
 \section{Razprava}
+\begin{comment}
 Moje hipoteze so bile:
 \begin{enumerate}
   \setlength\itemsep{0.5mm}
@@ -628,19 +634,30 @@ Moje hipoteze so bile:
 \end{enumerate}
 
 \vspace{5mm}
-
+\end{comment}
 \begin{enumerate}
-  \setlength\itemsep{0.5mm}
-  \item Prvo hipotezo lahko delno potrdim, saj je uporavljanje vrat preko telefona možno, vendar le, če so na telefonu nameščene ustrezne aplikacije (Termux ali PiRelay).
-  \item Drugo hipotezo sem ovrgel, saj mi spletne strani ni uspelo narediti.
-  \item Tretjo hipotezo lahko potrdim, saj se garažna vrata samodejno zaprejo, če avto pripelje v garažo ali jo zapusti.
-  \item Tudi četrto hipotezo lahko potrdim, saj se garaža ob neprimerni temperaturi samodejno zapre.
-  \item Peto hipotezo lahko potrdim, saj se garažna vrata ob določeni uri zaprejo samodejno.
-  \item Šesto hipotezo lahko potrdim, saj Raspberry Pi pošilja potisna obvestila preko soritve Pushover.
-  \item Sedmo hipotezo ovržem, saj Raspberry Pi ne beleži dnevnika uporabe garaže.
-  \item Osmo hipotezo lahko delno potrdim. Uporabnik ima možnost preklicati samodejno zapiranje vrat v primeru neustrezne temperature ali spremembe stanja avta. Ne more pa preklicati samodejnega zapiranja ob določeni uri.
+  %\setlength\itemsep{0.5mm}
+  \item Prvo hipotezo: garažna vrata bo možno upravljati preko telefona, lahko delno potrdim, saj je uporavljanje vrat s telefonom možno, vendar le, če so na njem nameščene ustrezne aplikacije (Termux ali PiRelay).
+  \item Drugo hipotezo: garažna vrata bo možno upravljati preko spletne strani, ovržem, saj mi spletne strani ni uspelo narediti.
+  \item Tretjo hipotezo: Raspberry Pi bo spremljal ali je avto v garaži ali ne in glede na to samodejno zapiral garažna vrata, lahko potrdim, saj se garažna vrata samodejno zaprejo, če avto pripelje v garažo ali jo zapusti.
+  \item Tudi četrto hipotezo: Raspberry Pi bo spremljal temperaturo v garaži in jih samodejno zaprl v primeru prenizke ali previsoke temperature, lahko potrdim, saj se garaža ob neprimerni temperaturi samodejno zapre.
+  \item Peto hipotezo: Raspberry Pi bo samodejno zaprl garažna vrata, če ostanejo odprta po določeni uri, lahko potrdim, saj se garažna vrata ob določeni uri zaprejo samodejno.
+  \item Šesto hipotezo: Raspberry Pi nas bo preko potisnih obvestil obveščal o spremembi stanja garažnih vrat, lahko potrdim, saj Raspberry Pi pošilja potisna obvestila preko soritve Pushover.
+  \item Sedmo hipotezo: Raspberry Pi bo beležil kdo in kdaj je aktiviral garažna vrata, ovržem, saj Raspberry Pi ne beleži dnevnika uporabe garaže.
+  \item Osmo hipotezo: uporabnik bo imel možnost preklicati samodejno zapiranje vrat, lahko delno potrdim. Uporabnik ima možnost preklicati samodejno zapiranje vrat v primeru neustrezne temperature ali spremembe stanja avta. Ne more pa preklicati samodejnega zapiranja ob določeni uri.
 \end{enumerate}
-Izdelava raziskovalne naloge je zahtevala veliko truda in časa. Moral sem prebrati veliko dokumentacije, brskati po forumih, eksperimentirati. Malo več časa, denarja in še kakšen dodaten par rok, pa bi lahko svoj projekt še precej razširil.
+\subsection{Težave med delom}
+\subsubsection{Rele predolgo ostane zaprt}
+Prva težava, ki se je pojavila pri izdelavi mojega projekta, je bilo, da je rele ostal predolgo zaprt. To je pomenilo, da se je rele zaprl, garažna vrataso se začela premikati, nato pa se ni več odprl. Ko se je to zgodilo, garažnih vrat ni bilo mogoče uporavljati s tipko.
+
+Težavo sem rešil zelo preprosto. Napisal sem program (checkRelay.py), ki spremlja stanje releja.V priemru, da ta ostane zaprt predolgo, ga odpre, dogodek ap zabeleži v dnevniško datoteko (checkRelay.log).
+
+\subsubsection{Multithreading}
+Med izdelavo projekta sem se kmalu zavedel, da imam še eno težavo. Program mora hkrati spremljati temperaturo v garaži in stanje avta. Najprej sem razmišljal, da bom problem rešil z uporabo Multithreadinga. Tako sem prebral vodič \cite{tutorialspoint_MT}. Ker po nekaj neuspešnih poskusih še vedno nisem vedel kaj natanko moram storiti, sem začel iskati alternative.
+
+Na koncu mi je težavo uspelo rešiti z uporabo multiprocessinga. Najprej sem prebral dokumentacijo \cite{python_MP}, nato pa sem z nekaj eksperimentiranja težavo kmalu odpravil.
+
+Izdelava raziskovalne naloge je zahtevala veliko truda in časa. Moral sem prebrati veliko dokumentacije, brskati po forumih, eksperimentirati. :e bi imel več časa, denarja in še kakšen dodaten par rok, pa bi lahko svoj projekt še precej razširil.
 \newpage
 \section{Zaključek}
 Raspberry Pi je danes zelo pogosto uporabljen v najrazličnejših projektih. K temu pripomoreta tako zalo prilagodljiv operacijski sistem, kot tudi ogromen nabor senzorjev, ki jih je možno priključiti nanj.
@@ -664,6 +681,8 @@ Verjamem da bomo v prihodnosti videli še veliko različnih in uporabnih projekt
 \newpage
 \section{Zahvale}
 Zahvaljujem se svojemu mentorju, profesorju Borotu Slemenšku za nasvete ter pomoč pri izdelavi raziskovalne naloge.
+
+Zahvala gre tudi mag. Andreji Tkalec, ki je lektorirala mojo raziskovalno nalogo.
 \newpage
 \section{Priloge}
 \subsection{garage.py - glavni program}
@@ -1131,6 +1150,56 @@ if __name__=="__main__":
     except:
         os.unlink(pidfile)
         destroy()
+\end{minted}
+
+\subsection{checkRelay.py}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               breaklines=true,
+               framesep=2mm]{python}
+
+               #!/usr/bin/python
+
+               #Program namenjen preklopu releja iz zaprtega v odprto stanje, ce je le ta predolgo zaprt
+               #Uporabljen kot resitev problema #1 (glej BUGS.md)
+
+               import RPi.GPIO as GPIO #import the GPIO library
+               import time
+               import datetime
+               from datetime import datetime
+               import os
+               import logging
+               logging.basicConfig(filename='logs/checkRelay.log')
+
+               homeFolder=os.environ['HOME']
+               path=homeFolder+'/.garage/logs'
+
+               def checkLogFilePath():
+                   if(not os.path.exists(homeFolder+'/.garage')):
+                       os.mkdir(homeFolder+'/.garage')
+                   if(not os.path.exists(path)):
+                       os.mkdir(path)
+
+               logger=logging.getLogger(__name__)
+
+               checkLogFilePath()
+
+               GPIO.setmode(GPIO.BOARD)
+               GPIO.setup(12, GPIO.OUT)
+               GPIO.output(12, GPIO.HIGH)
+
+               while True:
+                   if GPIO.input(12) == False:
+                       time.sleep(1.5)
+                       if GPIO.input(12) == False:
+                           logger.warning('Relay closed for too long.')
+                           GPIO.output(12, not GPIO.input(12))
+                           logger.info('Relay opened automatically.')
+                   time.sleep(.5)
+               GPIO.cleanup()
 \end{minted}
 \end{document}
 %%--------------------------------End of document--------------------------------%%

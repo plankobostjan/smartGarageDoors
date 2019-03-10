@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.99999 (TeX Live 2018/Arch Linux) (preloaded format=xelatex 2019.2.25)  10 MAR 2019 15:35
+This is XeTeX, Version 3.14159265-2.6-0.99999 (TeX Live 2018/Arch Linux) (preloaded format=xelatex 2019.2.25)  10 MAR 2019 16:08
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -1359,7 +1359,7 @@ File: se-ascii-print.def 2016/05/16 v1.11 stringenc: Printable ASCII characters
 \openout3 = `main_SimpleHeader.pyg'.
 
  (./_minted-main_SimpleHeader/default-pyg-prefix.pygstyle) (./_minted-main_SimpleHeader/default.pygstyle) (./_minted-main_SimpleHeader/E9442F4FA8BE5CDCBFE32AAFD9CEC3528B6B7B67B84F40DBCBA71209F9AA4726.pygtex)
-Underfull \hbox (badness 10000) in paragraph at lines 270--272
+Underfull \hbox (badness 10000) in paragraph at lines 269--271
 
  []
 
@@ -1369,7 +1369,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 270--272
 File: images/raspi-config.png Graphic file (type bmp)
 <images/raspi-config.png>
 
-Underfull \hbox (badness 10000) in paragraph at lines 291--291
+Underfull \hbox (badness 10000) in paragraph at lines 290--290
  [][]\TU/lmr/m/n/10.95 Slika 1: |Raspi-config: Glavni meni.| 
  []
 
@@ -1385,7 +1385,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 291--291
 File: images/smartGarage_Distance_bb.png Graphic file (type bmp)
 <images/smartGarage_Distance_bb.png>
 
-Underfull \hbox (badness 5711) in paragraph at lines 357--357
+Underfull \hbox (badness 5711) in paragraph at lines 356--356
  []\TU/lmr/m/n/10.95 Slika 2: |Priklop HC-SR04 unltrazvočnega senzorja razdalje.| 
  []
 
@@ -1399,14 +1399,14 @@ LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10.95> not available
 File: images/DS18B20_diagram.png Graphic file (type bmp)
 <images/DS18B20_diagram.png>
 
-Underfull \hbox (badness 10000) in paragraph at lines 393--393
+Underfull \hbox (badness 10000) in paragraph at lines 392--392
  []\TU/lmr/m/n/10.95 Slika 3: |Priklop DS18B20.| 
  []
 
 File: images/LCD_4bit.png Graphic file (type bmp)
 <images/LCD_4bit.png>
 
-Underfull \hbox (badness 10000) in paragraph at lines 407--407
+Underfull \hbox (badness 10000) in paragraph at lines 406--406
  []\TU/lmr/m/n/10.95 Slika 4: |Priklop LCD zaslona.| 
  []
 
@@ -1417,14 +1417,14 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: images/smartGarage_LED_button_bb.png Graphic file (type bmp)
 <images/smartGarage_LED_button_bb.png>
 
-Underfull \hbox (badness 10000) in paragraph at lines 416--416
+Underfull \hbox (badness 10000) in paragraph at lines 415--415
  []\TU/lmr/m/n/10.95 Slika 5: |Priklop LED diod in tipk.| 
  []
 
 File: images/smartGarageComplete_bb.png Graphic file (type bmp)
 <images/smartGarageComplete_bb.png>
 
-Underfull \hbox (badness 10000) in paragraph at lines 424--424
+Underfull \hbox (badness 10000) in paragraph at lines 423--423
  []\TU/lmr/m/n/10.95 Slika 6: |Priklop vseh komponent.| 
  []
 
@@ -1435,7 +1435,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 \openout3 = `main_SimpleHeader.pyg'.
 
  (./_minted-main_SimpleHeader/BE2F86ED4FAA4A580AE24B125AE0F1ECB2CA00AA987DA9148CF4EE12F0250689.pygtex)
-Overfull \hbox (2.1702pt too wide) in paragraph at lines 450--451
+Overfull \hbox (2.1702pt too wide) in paragraph at lines 449--450
 []\TU/lmr/m/n/10.95 Spremljanje temperature poteka z uporabo DS18B20 temperaturnega senzorja. Ta je nameščen
  []
 
@@ -1443,7 +1443,7 @@ Overfull \hbox (2.1702pt too wide) in paragraph at lines 450--451
 File: images/LCD_temp.jpg Graphic file (type bmp)
 <images/LCD_temp.jpg>
 
-Underfull \hbox (badness 10000) in paragraph at lines 460--460
+Underfull \hbox (badness 10000) in paragraph at lines 459--459
  []\TU/lmr/m/n/10.95 Slika 7: |Izpis na LCD.| 
  []
 
@@ -1519,17 +1519,17 @@ Overfull \hbox (257.60074pt too wide) in paragraph at lines 75--75
 \openout3 = `main_SimpleHeader.pyg'.
 
  (./_minted-main_SimpleHeader/51BAE53A49647AE8FAE4E0BF91B855BDB2CA00AA987DA9148CF4EE12F0250689.pygtex [30])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1124.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1122.
  [31]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1124.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1122.
  (./main_SimpleHeader.aux)
-Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1124.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1124.
+Package atveryend Info: Empty hook `AtVeryEndDocument' on input line 1122.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1122.
 Package rerunfilecheck Info: File `main_SimpleHeader.out' has not changed.
 (rerunfilecheck)             Checksum: 263A896A28CC01F33240F771A712E41E.
 runsystem(rm main_SimpleHeader.pyg)...executed.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1124.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1122.
  ) 
 Here is how much of TeX's memory you used:
  37438 strings out of 492933
@@ -1540,4 +1540,4 @@ Here is how much of TeX's memory you used:
  1348 hyphenation exceptions out of 8191
  53i,12n,115p,1997b,1041s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on main_SimpleHeader.xdv (30 pages, 599536 bytes).
+Output written on main_SimpleHeader.xdv (30 pages, 596804 bytes).

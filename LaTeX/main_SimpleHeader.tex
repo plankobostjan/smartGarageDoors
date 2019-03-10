@@ -114,6 +114,8 @@
 \makeglossaries
 %%--------------------------------Acronyms--------------------------------%%
 \newacronym{ssh}{SSH}{Secure Shell}
+\newacronym{lcd}{LCD}{Liquid Crystal Display}
+\newacronym{gpio}{GPIO}{General-purpose input/output}
 %%--------------------------------End of Acronyms--------------------------------%%
 
 %%--------------------------------Glossary--------------------------------%%
@@ -140,119 +142,40 @@
 \thispagestyle{empty}
    \center
    \fancyhead{}
-   \large{Šolski center Celje, Srednja šola za kemijo, elektrotehniko in računalništvo}\\[1.5cm]
+   %\large{Šolski center Celje, Srednja šola za kemijo, elektrotehniko in računalništvo}\\[1.5cm]
    \vspace*{\fill}
    \begin{center}
    \Huge{\bfseries Pametna garažna vrata}\\
    \vspace{1mm}
-   \large{raziskovalna naloga}
+   \large{Šifra: Rock}\\
+   \large{Letnik: 4. letnik}
    \end{center}
    \vspace*{\fill}
-   	%------------------------------------------------
-	%	Author(s)
-	%------------------------------------------------
-
-	\begin{minipage}{0.4\textwidth}
-		\begin{flushleft}
-		\vspace{4.5mm}
-			\large
-			\texttt{Avtor}\\
-			Boštjan \textsc{Planko}, R-4.A \\ %Author's name
-			%\vspace{0.2cm}
-			%\texttt{Submission date} \\
-			%\large{December 7, 2017}
-		\end{flushleft}
-	\end{minipage}
-	~
-	%------------------------------------------------
-	%	Supervisor(s)
-	%------------------------------------------------
-	\begin{minipage}{0.5\textwidth}
-		\begin{flushright}
-			\large
-			\texttt{Mentor}\\
-			Borut \textsc{Slemenšek} % Supervisor's name
-		\end{flushright}
-	\end{minipage}
-	~
-	%------------------------------------------------
-	%	Date
-	%------------------------------------------------
-	\begin{minipage}{0.5\textwidth}
-		\begin{center}
-		    \vspace{5mm}
-		    Mestna občina Celje, Mladi za Celje\\
-			\large{Celje, \monthyeardate\today}
-		\end{center}
-	\end{minipage}
-	\fancyfoot{}
-\end{titlepage}
-%%--------------------------------End of title page--------------------------------%%
-
-\begin{titlepage}
-\thispagestyle{empty}
-   \center
-   \fancyhead{}
-   \large{Šolski center Celje, Srednja šola za kemijo, elektrotehniko in računalništvo}\\[1.5cm]
-   \vspace*{\fill}
-   \begin{center}
-   \Huge{\bfseries Pametna garažna vrata}\\
-   \vspace{1mm}
-   \large{raziskovalna naloga}
-   \end{center}
-   \vspace*{\fill}
-   	%------------------------------------------------
-	%	Author(s)
-	%------------------------------------------------
-
-	\begin{minipage}{0.4\textwidth}
-		\begin{flushleft}
-		\vspace{4.5mm}
-			\large
-			\texttt{Avtor}\\
-			Boštjan \textsc{Planko}, R-4.A \\ %Author's name
-			%\vspace{0.2cm}
-			%\texttt{Submission date} \\
-			%\large{December 7, 2017}
-		\end{flushleft}
-	\end{minipage}
-	~
-	%------------------------------------------------
-	%	Supervisor(s)
-	%------------------------------------------------
-	\begin{minipage}{0.5\textwidth}
-		\begin{flushright}
-			\large
-			\texttt{Mentor}\\
-			Borut \textsc{Slemenšek} % Supervisor's name
-		\end{flushright}
-	\end{minipage}
-	~
-	%------------------------------------------------
-	%	Date
-	%------------------------------------------------
-	\begin{minipage}{0.5\textwidth}
-		\begin{center}
-		    \vspace{5mm}
-		    Mestna občina Celje, Mladi za Celje\\
-			\large{Celje, \monthyeardate\today}
-		\end{center}
-	\end{minipage}
-	\fancyfoot{}
-\end{titlepage}
+   %------------------------------------------------
+   %	Date
+   %------------------------------------------------
+   \begin{minipage}{0.5\textwidth}
+     \begin{center}
+         \vspace{5mm}
+         Mestna občina Celje, Mladi za Celje\\
+       \large{Celje, marec \monthyeardate\today}
+     \end{center}
+   \end{minipage}
+   \fancyfoot{}
+  \end{titlepage}
 %%--------------------------------End of title page--------------------------------%%
 
 %%--------------------------------Beginning of abstract--------------------------------%%
 \newpage
 \thispagestyle{empty}
 \section*{Povzetek}
-Raziskoval sem podrčje elektronike in avtomizacije. Glavni cilj razsikovalne naloge je bilo ali je mogoče avtomatizirati garažna vrata z Raspberry Pi računalnikom. Potrebno znanje, ki ga še nisem imel, sem pridobil z metodo analize dokumentov in metodo eksperimenta. Tekom nastajanja projekta sem prišel do zaključka, da je osnovna ideja sicer enostavna, v praksi pa stvari zelo hitro postanejo zelo kompleksne. Rezultat moje raziskovalne naloge je delujoč prototip, na katerem delujejo vse osnovne funkcije. Je dober temelj za nadaljnji razvoj in širitev projekta.
+Raziskoval sem podrčje elektronike in avtomizacije. Glavno vprašanje razsikovalne naloge je bilo ali je mogoče avtomatizirati garažna vrata z Raspberry Pi računalnikom. Potrebno znanje, ki ga še nisem imel, sem pridobil z metodo analize dokumentov in metodo eksperimenta. Tekom nastajanja projekta sem prišel do zaključka, da je osnovna ideja sicer enostavna, v praksi pa stvari zelo hitro postanejo zelo kompleksne. Rezultat moje raziskovalne naloge je delujoč prototip, na katerem delujejo vse osnovne funkcije. Je dober temelj za nadaljnji razvoj in širitev projekta.
 \section*{Summary}
-I was researching the field of electroics and automization. Main goal of this paper was finding out if it is possible to automate garage doors using Raspberry Pi. I had to analize a lot of documentation to get the knowledge that was required in order to finish my project. I also had to experiment quite a lot. In the end I came to the conclusion that the basic idea for my project is quite basic. Despite that, things can get really complicated really fast. End result of my work is working prototype that has a lot of possibilities to expand the project even further.
+I was researching the field of electronics and automation. The main goal of this paper was finding out if it is possible to automate garage doors using Raspberry Pi. I had to analyze a lot of documentation to get the knowledge that was required to finish my project. I also had to experiment quite a lot. In the end, I came to the conclusion that the basic idea for my project is quite simple. Despite that, things can get really complicated really fast. The end result of my work is a working prototype that has a lot of possibilities to expand the project even further.
 \section*{Ključne besede}
 raspberry pi, senzorji, python, raspbian, avtomizacija
 
-\printglossaries
+\printglossary[type=\acronymtype,title={Kratice}]
 %%--------------------------------End of abstract--------------------------------%%
 
 %%--------------------------------Beginning of ToC--------------------------------%%
@@ -261,6 +184,7 @@ raspberry pi, senzorji, python, raspbian, avtomizacija
 \pagenumbering{gobble}
 \thispagestyle{empty}
 \tableofcontents
+\newpage
 \listoffigures
 \renewcommand{\baselinestretch}{1.0}\normalsize
 %%--------------------------------End of ToC--------------------------------%%
@@ -281,7 +205,7 @@ raspberry pi, senzorji, python, raspbian, avtomizacija
 \setcounter{page}{6}
 \section{Uvod}
 \subsection{Opis problema}
-Problem današnjih garažnih vrat je, da jih je običajni možno odpreti samo na dva načina: s priloženim daljincem ali s tipko, običajno nameščeno na notranji strani garažnih vrat. Če želimo garažna vrata odpreti moramo torej biti v garaži ali pa moramo imeti pri sebi daljinec. To pa je v vsakdanjem življenju nepraktično, sploh v primeru, ko pri hiši živi veliko ljudi, vsi pa rabijo dostop do garaže.
+Problem današnjih garažnih vrat je, da jih je običajno možno odpreti samo na dva načina: s priloženim daljincem ali s tipko, običajno nameščeno na notranji strani garažnih vrat. Če želimo garažna vrata odpreti moramo torej biti v garaži ali pa moramo imeti pri sebi daljinec. To pa je v vsakdanjem življenju nepraktično, sploh v primeru, ko pri hiši živi veliko ljudi, vsi pa rabijo dostop do garaže.
 
 V tej nalogi bom predstavil svojo idejo, pametna garažna vrata, kot sem si jih zamislil in poskušal realizirati.
 
@@ -318,13 +242,13 @@ Pri programiranju in sestavljanju prototipa sem uporabil predvsem metodo eksperi
 
   Ultrazvočni senzor, s katerim bom preverjal je avto v garaži ali ne, bo nameščen ali na stropu garaže, najverjetneje kar na motorju garažnih vrat.
 
-  Ker želim, da bo mogoče v garaži preveriti trenutno temperaturo in čas, bom uporabil tudi 16x2 LCD zaslon.
+  Ker želim, da bo mogoče v garaži preveriti trenutno temperaturo in čas, bom uporabil tudi 16x2 \gls{lcd} zaslon.
 
   Poleg že naštetih komponent bo uporabil še dve LED diodi in dve tipki. Te bodo uporabljene paroma kot indikator stanja avta oziroma temperature v garaži. Če bo na primer garaža odprta in bo vanjo pripeljal avto, se bo pognal program, ki bo po določenem času samodejno zaprl vrata. Istočasno bo začela utripati ustrezna LED dioda, uporabnik pa bo imel s pritiskom tipke možnost, da prekliče samodejno zapiranje garaže. Pri temperaturi je namen LED diode in tipke enak, le da z njima spremljamo temperaturo v garaži.
 \section{Priprava Raspberry Pi-ja}
  Da bom lahko uporabljal Raspberry Pi, moram najprej naložiti usterzen opreacijski sistem. Ker za svoj projekt ne potrebujem grafičnega vmesnika, na Raspberry Pi namestim Raspbian Lite. To storim tako, da iz uradne strani Raspberry Pi \cite{RPi_raspbian} prenesem Raspbian Stretch Lite. Nato sledim navodilom za namestitev \cite{RPi_install} operacijskega sistema na microSd kartico, ki jo nato vstavim v Raspberry Pi.
 
-Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, moram pred zagonom omogočiti še \gls{ssh} ter vnesti podatke, ki jih Raspberry Pi potrebuje za povezavo na WiFi dostopno točko. Da omogočim SSH, na boot particijo microSD katrice dodam datoteko ssh. Da pa se bo Raspberry Pi lahko povezal na WiFi dostopno točko, moram na boot particiji ustvariti datoteko wpa\_supplicant.conf, v katero vnesem naslednje:
+Ker do Raspberry Pi-ja že od samega začetka nimam dostopa preko tipkovnice, moram pred zagonom omogočiti še \gls{ssh} ter vnesti podatke, ki jih Raspberry Pi potrebuje za povezavo na WiFi dostopno točko. Da omogočim \gls{ssh}, na boot particijo microSD katrice dodam datoteko ssh. Da pa se bo Raspberry Pi lahko povezal na WiFi dostopno točko, moram na boot particiji ustvariti datoteko wpa\_supplicant.conf, v katero vnesem naslednje:
 \newpage
 \begin{minted}[mathescape,
                linenos,
@@ -346,7 +270,7 @@ network={
 Nato microSD kartico vstavim v Raspberry Pi in priključim napajanje.
 \\
 
-Nato se iz terminala na svojem računalniku preko SSH povežem na Raspberry Pi:
+Nato se iz terminala na svojem računalniku preko \gls{ssh} povežem na Raspberry Pi:
 
 \begin{minted}[mathescape,
                linenos,
@@ -400,7 +324,7 @@ Ker bom program za upravljanje garažnih vrat napisal v Pythonu, le tega namesti
 sudo apt install python python-pip
 \end{minted}
 
-Ker bom uporabil tudi LCD, moram namestiti še RPILCD knjižnico:
+Ker bom uporabil tudi \gls{lcd}, moram namestiti še RPILCD knjižnico:
 
 \begin{minted}[mathescape,
                linenos,
@@ -419,7 +343,7 @@ S tem je priprava Raspberry Pi-ja zaključena.
 Priklop releja je zelo enostaven. Modul z relejem ima tri priključke: VCC, GND in IN1. VCC priključek povežem na 5 V pin. GND priključim na GND pin. Za IN1 izberem BMC pin 16.
 
 \subsection{Reed stikali}
-Priključitev reed stikal je v osnovi zelo enostavna. Paziti je treba, da imamo NO (Normally Open) in ne NC (Normally Closed) stikala. Nato en del stikala povežemo na 3.3 V, drugi del pa na enega izmed GPIO pinov. Prvo stikalo (garaža odprta) sem priklopil na BCM pin 5, drugega (garaža zaparta) pa na BCM pin 6.
+Priključitev reed stikal je v osnovi zelo enostavna. Paziti je treba, da imamo NO (Normally Open) in ne NC (Normally Closed) stikala. Nato en del stikala povežemo na 3.3 V, drugi del pa na enega izmed \gls{gpio} pinov. Prvo stikalo (garaža odprta) sem priklopil na BCM pin 5, drugega (garaža zaparta) pa na BCM pin 6.
 
 Po priklopu, je treba paziti, da v programu ne pozabimo nastaviti pull-down uporov, oba pina pa morata biti nastavljena kot vhodna. Tako ima pin vrednost 1, če je stikalo zaprto in vrednost 0, če je stikalo odprto.
 
@@ -470,13 +394,13 @@ Priklop je povsem enostaven. Vse kar potrebujemo, je DS18B20 senzor temperature 
 \end{figure}
 
 \subsection{LCD zaslon}
-Tudi priklop LCD zaslona je bil zame nekaj novega. Zato sem si pomagal z vodičem na circuitbasics.com \cite{CB_LCD}.
+Tudi priklop \gls{lcd} zaslona je bil zame nekaj novega. Zato sem si pomagal z vodičem na circuitbasics.com \cite{CB_LCD}.
 Za priklop sem potreboval:
 \begin{itemize}
-    \item LCD zaslon,
+    \item \gls{lcd} zaslon,
     \item 2 \SI{10}{\kohm} potenciometra.
 \end{itemize}
-LCD zaslon sem priklopil na Raspberry Pi, kot je prikazano na spodnji sliki.
+\gls{lcd} zaslon sem priklopil na Raspberry Pi, kot je prikazano na spodnji sliki.
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.3\textwidth]{images/LCD_4bit.png}
@@ -484,8 +408,8 @@ LCD zaslon sem priklopil na Raspberry Pi, kot je prikazano na spodnji sliki.
 \end{figure}
 \newpage
 \subsection{Tipki in LED diodi}
-Priklop tipk in LED diod je zelo enostaven. Tipki povežem preko 3.3 V na poljuben GPIO pin, pri čemur pazim le, da je pin nastavljen kot vhodni in da je omogočen notranji pull down upor.
-LED diodi sem priklopil preko \SI{270}{\ohm} uporov iz poljubnega GPIO pina na GND. GPIO pin mora biti nastavljen kot izhodni.
+Priklop tipk in LED diod je zelo enostaven. Tipki povežem preko 3.3 V na poljuben \gls{gpio} pin, pri čemur pazim le, da je pin nastavljen kot vhodni in da je omogočen notranji pull down upor.
+LED diodi sem priklopil preko \SI{270}{\ohm} uporov iz poljubnega \gls{gpio} pina na GND. \gls{gpio} pin mora biti nastavljen kot izhodni.
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.4\textwidth]{images/smartGarage_LED_button_bb.png}
@@ -526,9 +450,9 @@ Določanje, ali so vrata odprta, zaprta ali priprta, poteka s preverjanjem stanj
 Spremljanje temperature poteka z uporabo DS18B20 temperaturnega senzorja. Ta je nameščen meter od tal na najmanj prepišnem delu garaže. Program začne spremljati temperaturo, ko se garažna vrata odprejo. Med spremljanjem temperature urtipa kontrolna LED dioda. Tako uporabnik ve, da program spremlja temperaturo v garaži. Če temperatura pade oziroma preseže nastavljeno mejo, program samodejno zapre vrata in o tem obvesti uporabnike. V primeru, da uporabnik ne želi, da program v primeru neprimerne temperature samodejno zapre vrata , lahko to prekliče s pritiskom tipke.
 
 \subsection{Izpisovanje temperature na LCD}
-LCD, ki bo nameščen v ohišju na vidnem mestu v garaži, bo uporabljen za izpisovanje trenutega datuma, časa in temperature.
+\gls{lcd}, ki bo nameščen v ohišju na vidnem mestu v garaži, bo uporabljen za izpisovanje trenutega datuma, časa in temperature.
 
-Za izpisovanje se uporablja poseben program, ki v neskončni zanki meri temperaturo ter jo skupaj s trenutnim datumem in časom izpisuje na LCD zaslon.
+Za izpisovanje se uporablja poseben program, ki v neskončni zanki meri temperaturo ter jo skupaj s trenutnim datumem in časom izpisuje na \gls{lcd} zaslon.
 
 \begin{figure}[h]
 \centering
@@ -541,15 +465,11 @@ Ultrazvočni senzor razdalje HC-SR04 se uporablja za preverjanje, ali je avto v 
 
 Senzor je nameščen na stropu garaže. Razdalja (med senzorjem in avtom), ki določa, kdaj senzor zazna, da je v garaži avto, se nastavi v konfiguracijski datoteki.
 
-
-\subsection{Samodejno zapiranje ob določeni uri}
-Ker se včasih zgodi, da zvečer pozabimo zapreti garažna vrata, se mi je zdelo smiselno nastaviti samodejno zapiranje vrat ob določeni uri. Rešitev tega problema je relativno enostavna. Na Raspberry Pi-ju samo nastavim Cron opravilo, da se ob želeni uri zažene program za zapiranje vrat.
-
 \subsection{Če garažnih vrat ni možno zapreti}
 Med testiranjem programa za garažna vrata sem kmalu odkril relativno pomembno napako. Dogajalo se je, da je program želel vrata zapreti, to pa zaradi npr. ovire pod vrati ni bilo mogoče. Ker program ni bil dobro napisan, je v nedogled poskušal brez uspeha zapreti vrata.
 
 Težavo sem rešil tako, da sem napisal metodo v katero program vstopi, če se vrata po poskusu zapiranja ne zaprejo. Metoda nato še nekajkrat poskuša zapreti vrata. Če to ni mogoče, vrata ostanejo priprta.
-\newpage
+
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -608,7 +528,7 @@ Druga stvar, ki bi bila po mojem mnenju koristna, pa je beleženje kdo je garaž
 \subsubsection{Android aplikacija}
 Trenutno za upravljanje garaže preko telefona uporabljam kar Shell skripto, ki jo poženem z aplikacijo Termux. Zaradi boljše uporabniške izkušnje in uporabnosti bi bilo zato zelo dobro, če bi naredil še aplikacijo za Android. Aplikacija bi se lahko uporabljala za upravljanje garažnih vrat in spremljanje temperature. Lahko bi dodal tudi možnost, da uporabniki preko aplikacije nastavijo določene spremenljivke, kot je na primer ura, ob kateri se garaža samodejno zapre.
 \subsubsection{Brezžični moduli}
-Ko sem razmišljal, kako bi lahko svoj projekt še dodatno izboljšal, sem prišel na idejo, da bi bili moduli samostojni. Tako bi bil na primer en modul rele, drugi bi bil LCD zaslon, tretji senzor temperature itd.
+Ko sem razmišljal, kako bi lahko svoj projekt še dodatno izboljšal, sem prišel na idejo, da bi bili moduli samostojni. Tako bi bil na primer en modul rele, drugi bi bil \gls{lcd} zaslon, tretji senzor temperature itd.
 To bi bilo verjetno izvedljivo, če bi za vsak modul uporabil na primer NodeMcu \cite{NodeMcu}. Tako bi bil vsak modul zase povezan v WiFi omrežje, preko katerega bi komuniciral s centralnim računalnikom.
 
 \subsubsection{Odpiranje s prstnim odtisom ali številčnico}
@@ -660,9 +580,11 @@ Na koncu mi je težavo uspelo rešiti z uporabo multiprocessinga. Najprej sem pr
 Izdelava raziskovalne naloge je zahtevala veliko truda in časa. Moral sem prebrati veliko dokumentacije, brskati po forumih, eksperimentirati. :e bi imel več časa, denarja in še kakšen dodaten par rok, pa bi lahko svoj projekt še precej razširil.
 \newpage
 \section{Zaključek}
-Raspberry Pi je danes zelo pogosto uporabljen v najrazličnejših projektih. K temu pripomoreta tako zalo prilagodljiv operacijski sistem, kot tudi ogromen nabor senzorjev, ki jih je možno priključiti nanj.
+Moj cilj je bil narediti funkcionalen izdelek, ki se bo namestil v garaži in se uporabljal za avtomatizacijo garažnih vrat ter upravljanje le teh preko telefona. Čeprav nimam estetsko dovršenega in praktično uporabnega izdelka, pa imam delujoč prototip.
 
-Verjamem da bomo v prihodnosti videli še veliko različnih in uporabnih projektov domačih mojstrov izdelanih s pomočjo Raspberry Pi.
+Med izdelavo raziskovalne naloge sem pridobil veliko novih znanj. Dobil sem tudi kar precej izkušenj pri delu z elektroniko, ki jih do sedaj nisem imel.
+
+Projekt zame še zdaleč ni končan. Razvoj sistema bom nadaljeval kolikor bo čas dopuščal, seveda pa bom moral upoštevati tudi finančne omejitve. Odlično bi bilo tudi, če bi našel še koga, ki bi bil pripravljen sodelovati pri projektu. Kot vedno pravijo, več glav več ve.
 %%--------------------------------Beginning of Acronyms & Glossary--------------------------------%%
 \newpage
 \clearpage
@@ -681,8 +603,6 @@ Verjamem da bomo v prihodnosti videli še veliko različnih in uporabnih projekt
 \newpage
 \section{Zahvale}
 Zahvaljujem se svojemu mentorju, profesorju Borotu Slemenšku za nasvete ter pomoč pri izdelavi raziskovalne naloge.
-
-Zahvala gre tudi mag. Andreji Tkalec, ki je lektorirala mojo raziskovalno nalogo.
 \newpage
 \section{Priloge}
 \subsection{garage.py - glavni program}
